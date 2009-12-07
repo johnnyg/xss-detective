@@ -130,13 +130,16 @@ var detective = {
                     input.style.cursor =  "crosshair";
                     input.addEventListener('mouseover', hover_on, false);
                     input.addEventListener('mouseout', hover_off, false);
-                    input.addEventListener('focus', function (e) { self.targetSelected(this, arguments.callee); }, false);
+                    input.addEventListener('focus', function (e) { self.targetSelected(this, arguments.callee, i, j); }, false);
                 }
             }
         }
     },
 
-    targetSelected: function(input, f) {
+    targetSelected: function(input, f, i, j) {
+        this.formID = i;
+        this.inputID = j;
+        this.target = input;
         var forms = document.evaluate("//form", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         var formsLength = forms.snapshotLength;
         for (var i = 0; i < formsLength; i++) {
@@ -154,11 +157,11 @@ var detective = {
                 }
             }
         }
-        this.target = input;
     },
 
     injectXSS: function() {
         if (typeof(this.target) != 'undefined') {
+            this.url = window.location;
             this.target.value = this.selection.options[this.selection.selectedIndex].value;
             this.target.form.submit();
         } else {
