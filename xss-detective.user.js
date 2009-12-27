@@ -136,9 +136,9 @@ var detective = {
         }
     },
 
-    targetSelected: function(input, f, i, j) {
-        this.formID = i;
-        this.inputID = j;
+    targetSelected: function(input, func, formID, inputID) {
+        this.formID = formID;
+        this.inputID = inputID;
         this.target = input;
         var forms = document.evaluate("//form", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         var formsLength = forms.snapshotLength;
@@ -153,7 +153,7 @@ var detective = {
                     input.style.outline = "";
                     input.removeEventListener('mouseover', hover_on, false);
                     input.removeEventListener('mouseout', hover_off, false);
-                    input.removeEventListener('focus', f, false);
+                    input.removeEventListener('focus', func, false);
                 }
             }
         }
@@ -199,7 +199,7 @@ if (typeof(unsafeWindow) != 'undefined') {
     var xssTestVectors = unsafeWindow.xssTestVectors;
 }
 
-// If we can't see the external test,
+// If we can't see the external tests,
 // let's just create an empty set rather than dying
 if (typeof(xssTestVectors) == 'undefined') {
     var xssTestVectors = {};
