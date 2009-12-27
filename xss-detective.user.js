@@ -107,6 +107,13 @@ var detective = {
         self.createButton('Inject XSS test vector', function(e) {
             self.injectXSS();
         });
+
+        // check for injecting string
+        // if found run test cjecker and go to url
+        // otherwise check for form id and node id
+        // if found re-select node
+        // advance test id
+        // re-inject
     },
 
     addVector: function(name, test) {
@@ -164,6 +171,10 @@ var detective = {
             this.url = window.location;
             this.target.value = this.selection.options[this.selection.selectedIndex].value;
             this.target.form.submit();
+            // save url to cookie
+            // save for id and node id to cookie
+            // save test id to cookie
+            // save injecting to cookie
         } else {
             alert("You need to select an input first!");
         }
