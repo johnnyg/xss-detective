@@ -5,7 +5,7 @@
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests a selected input field against known attack vectors.
 // @include http://*/~johnnyg/cs9447/*
-// @include http://www.gaylordmart.com/*
+// @include http://www.gaylord.com/*
 // ==/UserScript==
 
 function hover(on, el) {
@@ -128,6 +128,7 @@ display: function() {
                   this.formIndex = nodeID.split(";")[0];
                   this.elementIndex = nodeID.split(";")[1];
                   this.target = document.forms[this.formIndex].elements[this.elementIndex];
+                  this.target.style.outline = "solid #fc0";
 
                   if (state == "next_test") {
                      this.testIndex = this.getCookie("XD_test") + 1;
@@ -145,8 +146,16 @@ addVector: function(name, test) {
            },
 
 chooseTarget: function() {
-                 var formsLength = document.forms.length;
+                 if (this.target) {
+                    this.target.style.outline = "";
+                 }
+                 this.target = null;
+                 this.formIndex = -1;
+                 this.elementIndex = -1;
+                 this.testIndex = -1;
+
                  var self = this;
+                 var formsLength = document.forms.length;
                  for (var i = 0; i < formsLength; i++) {
                     form = document.forms[i];
                     inputsLength = document.forms[i].elements.length;
@@ -171,15 +180,16 @@ targetSelected: function(input, caller) {
                       for (var j = 0; j < inputsLength; j++) {
                          input = document.forms[i].elements[j];
                          if (input.type != 'submit') {
+                            if (input == this.target) {
+                               this.formIndex = i;
+                               this.elementIndex = j;
+                            } else {
+                               input.style.outline = "";
+                            }
                             input.style.cursor = "auto";
-                            input.style.outline = "";
                             input.removeEventListener('mouseover', hover_on, false);
                             input.removeEventListener('mouseout', hover_off, false);
                             input.removeEventListener('focus', caller, false);
-                         }
-                         if (input == this.target) {
-                            this.formIndex = i;
-                            this.elementIndex = j;
                          }
                       }
                    }
