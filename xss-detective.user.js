@@ -123,10 +123,10 @@ display: function() {
                this.setCookie("XD_state", "next_test", expiry);
                window.location = this.getCookie("XD_URL");
             } else {
-               var nodeID = this.getCookie("XD_ID");
-               if (nodeID) {
-                  this.formIndex = nodeID.split(";")[0];
-                  this.elementIndex = nodeID.split(";")[1];
+               var nodeIndex = this.getCookie("XD_index");
+               if (nodeIndex) {
+                  this.formIndex = nodeIndex.split(";")[0];
+                  this.elementIndex = nodeIndex.split(";")[1];
                   this.target = document.forms[this.formIndex].elements[this.elementIndex];
                   this.target.style.outline = "solid #fc0";
 
@@ -199,7 +199,7 @@ injectXSS: function() {
               if (typeof(this.target) != 'undefined') {
                  // Save state
                  this.setCookie("XD_URL", window.location, 1);
-                 this.setCookie("XD_ID", this.formIndex+";"+this.elementIndex, 1);
+                 this.setCookie("XD_index", this.formIndex+";"+this.elementIndex, 1);
                  this.setCookie("XD_test", this.selection.selectedIndex, 1);
                  this.setCookie("XD_state", "injecting", 1);
 
