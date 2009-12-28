@@ -124,7 +124,7 @@ display: function() {
                if (nodeID) {
                   this.formID = nodeID.split(":")[0]
                      this.inputID = nodeID.split(":")[1]
-                     this.input = document.body.forms[this.formID].inputs[this.inputID];
+                     this.input = document.body.forms[this.formID].elements[this.inputID];
 
                   if (state == "next_test") {
                      this.testIndex = getCookie("XD_test") + 1;
