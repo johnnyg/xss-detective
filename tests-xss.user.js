@@ -8,7 +8,6 @@
 
 var xssTestVectors = {
         "Test 1" : "<script>alert(1);</script>",
-        "Test 2" : "<body onload='alert(1)'>"
 };
 
 if (typeof(unsafeWindow) != 'undefined') {
