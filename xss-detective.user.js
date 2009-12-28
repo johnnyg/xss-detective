@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name XSS Detective
 // @author John Garland
-// @version 0.7
+// @version 0.8
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests a selected input field against known attack vectors.
 // @include http://*/~johnnyg/cs9447/*
