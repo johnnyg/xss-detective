@@ -116,7 +116,6 @@ display: function() {
             if (state == "injecting") {
                // We just injected
                // TODO: save result
-               alert("Injected!");
                var expiry = -1;
                if (this.getCookie("XD_multitest")) {
                   expiry = 1;
@@ -126,9 +125,9 @@ display: function() {
             } else {
                var nodeID = this.getCookie("XD_ID");
                if (nodeID) {
-                  this.formID = nodeID.split(";")[0];
-                  this.inputID = nodeID.split(";")[1];
-                  this.target = document.forms[this.formID].elements[this.inputID];
+                  this.formIndex = nodeID.split(";")[0];
+                  this.elementIndex = nodeID.split(";")[1];
+                  this.target = document.forms[this.formIndex].elements[this.elementIndex];
 
                   if (state == "next_test") {
                      this.testIndex = this.getCookie("XD_test") + 1;
@@ -157,15 +156,13 @@ chooseTarget: function() {
                           input.style.cursor =  "crosshair";
                           input.addEventListener('mouseover', hover_on, false);
                           input.addEventListener('mouseout', hover_off, false);
-                          input.addEventListener('focus', function (e) { self.targetSelected(this, arguments.callee, i, j); }, false);
+                          input.addEventListener('focus', function (e) { self.targetSelected(this, arguments.callee); }, false);
                        }
                     }
                  }
               },
 
-targetSelected: function(input, func, formID, inputID) {
-                   this.formID = formID;
-                   this.inputID = inputID;
+targetSelected: function(input, caller) {
                    this.target = input;
                    var formsLength = document.forms.length;
                    for (var i = 0; i < formsLength; i++) {
@@ -178,7 +175,11 @@ targetSelected: function(input, func, formID, inputID) {
                             input.style.outline = "";
                             input.removeEventListener('mouseover', hover_on, false);
                             input.removeEventListener('mouseout', hover_off, false);
-                            input.removeEventListener('focus', func, false);
+                            input.removeEventListener('focus', caller, false);
+                         }
+                         if (input == this.target) {
+                            this.formIndex = i;
+                            this.elementIndex = j;
                          }
                       }
                    }
@@ -188,7 +189,7 @@ injectXSS: function() {
               if (typeof(this.target) != 'undefined') {
                  // Save state
                  this.setCookie("XD_URL", window.location, 1);
-                 this.setCookie("XD_ID", this.formID+";"+this.inputID, 1);
+                 this.setCookie("XD_ID", this.formIndex+";"+this.elementIndex, 1);
                  this.setCookie("XD_test", this.selection.selectedIndex, 1);
                  this.setCookie("XD_state", "injecting", 1);
 
