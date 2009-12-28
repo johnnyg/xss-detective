@@ -4,6 +4,8 @@
 // @version 0.7
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests a selected input field against known attack vectors.
+// @include http://*/~johnnyg/cs9447/*
+// @include http://www.gaylordmart.com/*
 // ==/UserScript==
 
 function hover(on, el) {
@@ -92,6 +94,7 @@ createButton: function(text, handler) {
 
 display: function() {
 
+            var self = this;
             this.testIndex = -1;
 
             this.toolbar = this.buildToolbar();
@@ -99,13 +102,13 @@ display: function() {
             this.addVector("Random String", this.randomString());
 
             this.createButton('Select input', function (e) {
-                  this.chooseTarget();
+                  self.chooseTarget();
                   });
 
             this.createSelection();
 
             this.createButton('Inject XSS test vector', function(e) {
-                  this.injectXSS();
+                  self.injectXSS();
                   });
 
             // Restore state (if any)
@@ -113,21 +116,22 @@ display: function() {
             if (state == "injecting") {
                // We just injected
                // TODO: save result
-               var expiry = 1;
+               alert("Injected!");
+               var expiry = -1;
                if (this.getCookie("XD_multitest")) {
-                  expiry = -1;
+                  expiry = 1;
                }
                this.setCookie("XD_state", "next_test", expiry);
                window.location = this.getCookie("XD_URL");
             } else {
                var nodeID = this.getCookie("XD_ID");
                if (nodeID) {
-                  this.formID = nodeID.split(":")[0]
-                     this.inputID = nodeID.split(":")[1]
-                     this.input = document.body.forms[this.formID].elements[this.inputID];
+                  this.formID = nodeID.split(";")[0];
+                  this.inputID = nodeID.split(";")[1];
+                  this.target = document.forms[this.formID].elements[this.inputID];
 
                   if (state == "next_test") {
-                     this.testIndex = getCookie("XD_test") + 1;
+                     this.testIndex = this.getCookie("XD_test") + 1;
                      this.injectXSS();
                   }
                }
@@ -142,15 +146,13 @@ addVector: function(name, test) {
            },
 
 chooseTarget: function() {
-                 var forms = document.evaluate("//form", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                 var formsLength = forms.snapshotLength;
+                 var formsLength = document.forms.length;
                  var self = this;
                  for (var i = 0; i < formsLength; i++) {
-                    form = forms.snapshotItem(i);
-                    inputs = document.evaluate("//input", form, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                    inputsLength = inputs.snapshotLength;
+                    form = document.forms[i];
+                    inputsLength = document.forms[i].elements.length;
                     for (var j = 0; j < inputsLength; j++) {
-                       input = inputs.snapshotItem(j);
+                       input = document.forms[i].elements[j];
                        if (input.type != 'submit') {
                           input.style.cursor =  "crosshair";
                           input.addEventListener('mouseover', hover_on, false);
@@ -165,14 +167,12 @@ targetSelected: function(input, func, formID, inputID) {
                    this.formID = formID;
                    this.inputID = inputID;
                    this.target = input;
-                   var forms = document.evaluate("//form", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                   var formsLength = forms.snapshotLength;
+                   var formsLength = document.forms.length;
                    for (var i = 0; i < formsLength; i++) {
-                      form = forms.snapshotItem(i);
-                      inputs = document.evaluate("//input", form, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                      inputsLength = inputs.snapshotLength;
+                      form = document.forms[i];
+                      inputsLength = document.forms[i].elements.length;
                       for (var j = 0; j < inputsLength; j++) {
-                         input = inputs.snapshotItem(j);
+                         input = document.forms[i].elements[j];
                          if (input.type != 'submit') {
                             input.style.cursor = "auto";
                             input.style.outline = "";
@@ -187,10 +187,10 @@ targetSelected: function(input, func, formID, inputID) {
 injectXSS: function() {
               if (typeof(this.target) != 'undefined') {
                  // Save state
-                 setCookie("XD_URL", window.location, 1);
-                 setCookie("XD_ID", this.formID+":"this.inputID, 1);
-                 setCookie("XD_test", this.selection.selectedIndex, 1);
-                 setCookie("XD_state", "injecting", 1);
+                 this.setCookie("XD_URL", window.location, 1);
+                 this.setCookie("XD_ID", this.formID+";"+this.inputID, 1);
+                 this.setCookie("XD_test", this.selection.selectedIndex, 1);
+                 this.setCookie("XD_state", "injecting", 1);
 
                  if (this.testIndex == -1) {
                     this.testIndex = this.selection.selectedIndex;
