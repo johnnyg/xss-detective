@@ -52,10 +52,12 @@ createSelection: function() {
                     select.id = "vector";
                     var option;
                     var title;
-                    for (title in this.vectors) {
+                    for (i in this.vectors) {
+                       var vector = this.vectors[i];
                        option = document.createElement('option');
-                       option.text = title;
-                       option.value = this.vectors[title];
+                       option.text = vector.name;
+                       option.title = vector.description;
+                       option.value = vector.code;
                        select.appendChild(option);
                     }
                     this.toolbar.appendChild(select);
@@ -99,7 +101,7 @@ display: function() {
 
             this.toolbar = this.buildToolbar();
 
-            this.addVector("Random String", this.randomString());
+            //this.addVector("Random String", this.randomString());
 
             this.createButton('Select input', function (e) {
                   self.chooseTarget();
@@ -114,8 +116,8 @@ display: function() {
             // Restore state (if any)
             var state = this.getCookie("XD_state");
             if (state == "injecting") {
-               // We just injected
-               // TODO: save result
+               // We just injected, store the result
+               this.setCookie("XD_passed", this.vectors[this.getCookie("XD_test")].check(), 1);
                var expiry = -1;
                if (this.getCookie("XD_multitest")) {
                   expiry = 1;
@@ -129,20 +131,32 @@ display: function() {
                   this.elementIndex = nodeIndex.split(";")[1];
                   this.target = document.forms[this.formIndex].elements[this.elementIndex];
                   this.target.style.outline = "solid #fc0";
+                  var testIndex = this.getCookie("XD_test");
+                  if (testIndex) {
+                     this.testIndex = testIndex;
+                     this.selection.selectedIndex = testIndex;
+                  }
 
-                  if (state == "next_test") {
-                     this.testIndex = this.getCookie("XD_test") + 1;
+                  var passed = this.getCookie("XD_passed");
+                  if (passed == "true") {
+                     this.target.style.outline = "solid green";
+                  } else if (passed == "false") {
+                     this.target.style.outline = "solid red";
+                  }
+
+                  if (passed == "true" && state == "next_test") {
+                     this.testIndex++;
                      this.injectXSS();
                   }
                }
             }
          },
 
-addVector: function(name, test) {
+addVector: function(test) {
               if (typeof(this.vectors) == 'undefined') {
-                 this.vectors = {};
+                 this.vectors = [];
               }
-              this.vectors[name] = test;
+              this.vectors.push(test)
            },
 
 chooseTarget: function() {
@@ -246,10 +260,10 @@ if (typeof(unsafeWindow) != 'undefined') {
 // If we can't see the external tests,
 // let's just create an empty set rather than dying
 if (typeof(xssTestVectors) == 'undefined') {
-   var xssTestVectors = {};
+   var xssTestVectors = [];
 }
 
 for (vector in xssTestVectors) {
-   detective.addVector(vector, xssTestVectors[vector]);
+   detective.addVector(xssTestVectors[vector]);
 }
 detective.display();
