@@ -253,13 +253,13 @@ getCookie: function(c_name) {
 };
 
 // Are we being run by greasemonkey?
-if (typeof(unsafeWindow) != 'undefined') {
+if (typeof(unsafeWindow) !== undefined) {
    var xssTestVectors = unsafeWindow.xssTestVectors;
 }
 
 // If we can't see the external tests,
 // let's just create an empty set rather than dying
-if (typeof(xssTestVectors) == 'undefined') {
+if (typeof(xssTestVectors) === undefined) {
    var xssTestVectors = [];
 }
 
