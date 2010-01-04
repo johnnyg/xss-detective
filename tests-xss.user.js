@@ -21,6 +21,6 @@ var xssTestVectors = [
    }
 ];
 
-if (typeof(unsafeWindow) !== undefined) {
+if (typeof(unsafeWindow) !== 'undefined') {
     unsafeWindow.xssTestVectors = xssTestVectors;
 }
