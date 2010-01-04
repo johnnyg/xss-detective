@@ -53,11 +53,11 @@ createSelection: function() {
                     var option;
                     var title;
                     for (i in this.vectors) {
-                       var vector = this.vectors[i];
+                       var test = this.vectors[i];
                        option = document.createElement('option');
-                       option.text = vector.name;
-                       option.title = vector.description;
-                       option.value = vector.code;
+                       option.text = test.name;
+                       option.title = test.description;
+                       option.value = test.vector;
                        select.appendChild(option);
                     }
                     this.toolbar.appendChild(select);
