@@ -52,8 +52,8 @@ createSelection: function() {
                     select.id = "vector";
                     var option;
                     var title;
-                    for (i in this.vectors) {
-                       var test = this.vectors[i];
+                    for (i in this.tests) {
+                       var test = this.tests[i];
                        option = document.createElement('option');
                        option.text = test.name;
                        option.title = test.description;
@@ -117,7 +117,7 @@ display: function() {
             var state = this.getCookie("XD_state");
             if (state == "injecting") {
                // We just injected, store the result
-               this.setCookie("XD_passed", this.vectors[this.getCookie("XD_test")].check(), 1);
+               this.setCookie("XD_passed", this.tests[this.getCookie("XD_test")].check(), 1);
                var expiry = -1;
                if (this.getCookie("XD_multitest")) {
                   expiry = 1;
@@ -153,10 +153,10 @@ display: function() {
          },
 
 addVector: function(test) {
-              if (typeof(this.vectors) == 'undefined') {
-                 this.vectors = [];
+              if (typeof(this.tests) == 'undefined') {
+                 this.tests = [];
               }
-              this.vectors.push(test)
+              this.tests.push(test)
            },
 
 chooseTarget: function() {
