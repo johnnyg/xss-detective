@@ -115,9 +115,10 @@ display: function() {
 
             // Restore state (if any)
             var state = this.getCookie("XD_state");
-            if (state == "injecting") {
+            if (state === "injecting") {
                // We just injected, store the result
-               this.setCookie("XD_passed", this.tests[this.getCookie("XD_test")].check(), 1);
+               var passed = this.tests[this.getCookie("XD_test")].check();
+               this.setCookie("XD_passed", passed, 1);
                var expiry = -1;
                if (this.getCookie("XD_multitest")) {
                   expiry = 1;
@@ -132,19 +133,19 @@ display: function() {
                   this.target = document.forms[this.formIndex].elements[this.elementIndex];
                   this.target.style.outline = "solid #fc0";
                   var testIndex = this.getCookie("XD_test");
-                  if (testIndex) {
+                  if (testIndex !== "") {
                      this.testIndex = testIndex;
                      this.selection.selectedIndex = testIndex;
                   }
 
                   var passed = this.getCookie("XD_passed");
-                  if (passed == "true") {
+                  if (passed === "true") {
                      this.target.style.outline = "solid green";
-                  } else if (passed == "false") {
+                  } else if (passed === "false") {
                      this.target.style.outline = "solid red";
                   }
 
-                  if (passed == "true" && state == "next_test") {
+                  if (passed === "true" && state === "next_test") {
                      this.testIndex++;
                      this.injectXSS();
                   }
@@ -153,7 +154,7 @@ display: function() {
          },
 
 addVector: function(test) {
-              if (typeof(this.tests) == 'undefined') {
+              if (typeof(this.tests) === 'undefined') {
                  this.tests = [];
               }
               this.tests.push(test)
@@ -175,7 +176,7 @@ chooseTarget: function() {
                     inputsLength = document.forms[i].elements.length;
                     for (var j = 0; j < inputsLength; j++) {
                        input = document.forms[i].elements[j];
-                       if (input.type != 'submit') {
+                       if (input.type !== 'submit') {
                           input.style.cursor =  "crosshair";
                           input.addEventListener('mouseover', hover_on, false);
                           input.addEventListener('mouseout', hover_off, false);
@@ -193,8 +194,8 @@ targetSelected: function(input, caller) {
                       inputsLength = document.forms[i].elements.length;
                       for (var j = 0; j < inputsLength; j++) {
                          input = document.forms[i].elements[j];
-                         if (input.type != 'submit') {
-                            if (input == this.target) {
+                         if (input.type !== 'submit') {
+                            if (input === this.target) {
                                this.formIndex = i;
                                this.elementIndex = j;
                             } else {
@@ -210,16 +211,14 @@ targetSelected: function(input, caller) {
                 },
 
 injectXSS: function() {
-              if (typeof(this.target) != 'undefined') {
+              if (typeof(this.target) !== 'undefined') {
                  // Save state
+                 this.testIndex = this.selection.selectedIndex;
                  this.setCookie("XD_URL", window.location, 1);
                  this.setCookie("XD_index", this.formIndex+";"+this.elementIndex, 1);
-                 this.setCookie("XD_test", this.selection.selectedIndex, 1);
+                 this.setCookie("XD_test", this.testIndex, 1);
                  this.setCookie("XD_state", "injecting", 1);
 
-                 if (this.testIndex == -1) {
-                    this.testIndex = this.selection.selectedIndex;
-                 }
                  this.target.value = this.selection.options[this.testIndex].value;
                  this.target.form.submit();
               } else {
