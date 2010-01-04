@@ -39,7 +39,7 @@ buildToolbar: function() {
                  return toolbar
               },
 
-createSelection: function() {
+createSelection: function(id, options, getAttributes) {
                     var select = document.createElement('select');
                     select.style.cssFloat = 'left';
                     select.style.width = 'auto';
@@ -49,19 +49,16 @@ createSelection: function() {
                     select.style.padding = '3px';
                     select.style.color = 'Black';
                     select.style.cursor = 'pointer';
-                    select.id = "vector";
-                    var option;
-                    var title;
-                    for (i in this.tests) {
-                       var test = this.tests[i];
-                       option = document.createElement('option');
-                       option.text = test.name;
-                       option.title = test.description;
-                       option.value = test.vector;
+                    select.id = id;
+                    for (i in options) {
+                       var attributes = getAttributes(options[i]);
+                       var option = document.createElement('option');
+                       for (attribute in attributes) {
+                          option[attribute] = attributes[attribute];
+                       }
                        select.appendChild(option);
                     }
                     this.toolbar.appendChild(select);
-                    this.selection = select;
                  },
 
 buttonHover: function(e) {
@@ -105,13 +102,16 @@ display: function() {
 
             this.createButton('Select input', function (e) {
                   self.chooseTarget();
-                  });
+            });
 
-            this.createSelection();
+            this.createSelection("tests", this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
+            this.testSelection = document.getElementById('tests');
 
             this.createButton('Inject XSS test vector', function(e) {
                   self.injectXSS();
-                  });
+            });
+
+            this.createSelection("info", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
 
             // Restore state (if any)
             var state = this.getCookie("XD_state");
@@ -135,7 +135,7 @@ display: function() {
                   var testIndex = this.getCookie("XD_test");
                   if (testIndex !== "") {
                      this.testIndex = testIndex;
-                     this.selection.selectedIndex = testIndex;
+                     this.testSelection.selectedIndex = testIndex;
                   }
 
                   var passed = this.getCookie("XD_passed");
@@ -213,13 +213,13 @@ targetSelected: function(input, caller) {
 injectXSS: function() {
               if (typeof(this.target) !== 'undefined') {
                  // Save state
-                 this.testIndex = this.selection.selectedIndex;
+                 this.testIndex = this.testSelection.selectedIndex;
                  this.setCookie("XD_URL", window.location, 1);
                  this.setCookie("XD_index", this.formIndex+";"+this.elementIndex, 1);
                  this.setCookie("XD_test", this.testIndex, 1);
                  this.setCookie("XD_state", "injecting", 1);
 
-                 this.target.value = this.selection.options[this.testIndex].value;
+                 this.target.value = this.testSelection.options[this.testIndex].value;
                  this.target.form.submit();
               } else {
                  alert("You need to select an input first!");
