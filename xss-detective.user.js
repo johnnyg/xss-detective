@@ -20,6 +20,7 @@ buildToolbar: function() {
                  toolbar.style.background = 'LightGray';
                  toolbar.style.borderTop = '1px solid Gray';
                  toolbar.style.color = 'Black';
+                 toolbar.style.overflow = 'hidden';
 
                  toolbar.style.fontFamily = 'Tahoma, Sans'
                     toolbar.style.fontSize = '0.8em';
@@ -102,7 +103,15 @@ init: function() {
             this.createSelection("details_types", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
             this.detailSelection = document.getElementById('details_types');
 
-            this.details = document.createElement('span');
+            this.details = document.createElement('input');
+            this.details.type = 'text';
+            this.details.style.cssFloat = 'left';
+            this.details.style.width = '70%';
+            this.details.style.border = '0px';
+            this.details.style.background = 'LightGray';
+            this.details.style.margin = '4px';
+            this.details.style.padding = '3px';
+            this.details.style.color = 'Black';
             this.details.id = "details";
             this.toolbar.appendChild(this.details);
 
@@ -258,10 +267,7 @@ updateDetails: function() {
             } else {
                details = selected.value;
             }
-            while (this.details.firstChild) {
-               this.details.removeChild(this.details.firstChild);
-            }
-            this.details.appendChild(document.createTextNode(details));
+            this.details.value = details;
          },
 
 hover: function(on, el) {
