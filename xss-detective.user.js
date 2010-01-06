@@ -8,18 +8,6 @@
 // @include http://www.gaylord.com/*
 // ==/UserScript==
 
-function hover(on, el) {
-   el.style.outline = on ? "solid #fc0" : "";
-}
-
-function hover_on(e) {
-   hover(true, this);
-}
-
-function hover_off(e) {
-   hover(false, this);
-}
-
 var detective = {
 
 buildToolbar: function() {
@@ -188,15 +176,16 @@ chooseTarget: function() {
                        input = document.forms[i].elements[j];
                        if (input.type !== 'submit') {
                           input.style.cursor =  "crosshair";
-                          input.addEventListener('mouseover', hover_on, false);
-                          input.addEventListener('mouseout', hover_off, false);
-                          input.addEventListener('focus', function (e) { self.targetSelected(this, arguments.callee); }, false);
+                          input.addEventListener('mouseover', function(e) { self.hover_on(this); }, false);
+                          input.addEventListener('mouseout', function(e) { self.hover_off(this); }, false);
+                          input.addEventListener('focus', function(e) { self.targetSelected(this, arguments.callee); }, false);
                        }
                     }
                  }
               },
 
 targetSelected: function(input, caller) {
+                   var self = this;
                    this.target = input;
                    var formsLength = document.forms.length;
                    for (var i = 0; i < formsLength; i++) {
@@ -212,8 +201,8 @@ targetSelected: function(input, caller) {
                                input.style.outline = "";
                             }
                             input.style.cursor = "auto";
-                            input.removeEventListener('mouseover', hover_on, false);
-                            input.removeEventListener('mouseout', hover_off, false);
+                            input.removeEventListener('mouseover', function(e) { self.hover_on(this); }, false);
+                            input.removeEventListener('mouseout', function(e) { self.hover_off(this); }, false);
                             input.removeEventListener('focus', caller, false);
                          }
                       }
@@ -273,7 +262,19 @@ updateDetails: function() {
                this.details.removeChild(this.details.firstChild);
             }
             this.details.appendChild(document.createTextNode(details));
-         }
+         },
+
+hover: function(on, el) {
+          el.style.outline = on ? "solid #fc0" : "";
+       },
+
+hover_on: function(el) {
+             this.hover(true, el);
+          },
+
+hover_off: function(el) {
+              this.hover(false, el);
+           },
 };
 
 // Are we being run by greasemonkey?
