@@ -91,7 +91,7 @@ createButton: function(text, handler) {
                  this.toolbar.appendChild(button);
               },
 
-display: function() {
+init: function() {
 
             var self = this;
             this.testIndex = -1;
@@ -111,7 +111,16 @@ display: function() {
                   self.injectXSS();
             });
 
-            this.createSelection("info", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
+            this.createSelection("details_types", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
+            this.detailSelection = document.getElementById('details_types');
+
+            this.details = document.createElement('span');
+            this.details.id = "details";
+            this.toolbar.appendChild(this.details);
+
+            // Onlly add events after details field exists
+            this.testSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
+            this.detailSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
 
             // Restore state (if any)
             var state = this.getCookie("XD_state");
@@ -151,6 +160,7 @@ display: function() {
                   }
                }
             }
+            this.updateDetails();
          },
 
 addVector: function(test) {
@@ -248,7 +258,22 @@ getCookie: function(c_name) {
                  }
               }
               return "";
-           }
+           },
+
+updateDetails: function() {
+            var selected = this.testSelection.options[this.testSelection.selectedIndex];
+            var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
+            var details = "";
+            if (type === "Description") {
+               details = selected.title;
+            } else {
+               details = selected.value;
+            }
+            while (this.details.firstChild) {
+               this.details.removeChild(this.details.firstChild);
+            }
+            this.details.appendChild(document.createTextNode(details));
+         }
 };
 
 // Are we being run by greasemonkey?
@@ -265,4 +290,4 @@ if (typeof(xssTestVectors) === 'undefined') {
 for (vector in xssTestVectors) {
    detective.addVector(xssTestVectors[vector]);
 }
-detective.display();
+detective.init();
