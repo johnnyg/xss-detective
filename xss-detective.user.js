@@ -154,7 +154,7 @@ chooseTarget:
 targetSelected:
    function(e) {
       var self = detective;
-      this.target = e.currentTarget;
+      self.target = e.currentTarget;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
          form = document.forms[i];
@@ -169,7 +169,7 @@ targetSelected:
             }
          }
       }
-      this.target.style.outline = "solid #fc0";
+      self.hover(true, self.target);
    },
 
 injectXSS:
