@@ -24,7 +24,7 @@ buildToolbar:
       toolbar.style.overflow = 'hidden';
 
       toolbar.style.fontFamily = 'Tahoma, Sans'
-         toolbar.style.fontSize = '0.8em';
+      toolbar.style.fontSize = '0.8em';
       document.body.appendChild(toolbar);
       return toolbar
    },
@@ -89,22 +89,17 @@ init:
    function() {
 
       var self = this;
-      this.testIndex = -1;
 
       this.toolbar = this.buildToolbar();
 
       //this.addVector("Random String", this.randomString());
 
-      this.createButton('Select input', function (e) {
-            self.chooseTarget();
-            });
+      this.createButton('Select input', function (e) { self.chooseTarget(); });
 
       this.createSelection("tests", this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
       this.testSelection = document.getElementById('tests');
 
-      this.createButton('Inject XSS test vector', function(e) {
-            self.injectXSS();
-            });
+      this.createButton('Inject XSS test vector', function(e) { self.injectXSS(); });
 
       this.createSelection("details_types", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
       this.detailSelection = document.getElementById('details_types');
@@ -138,14 +133,7 @@ addVector:
 
 chooseTarget:
    function() {
-      if (this.target) {
-         this.target.style.outline = "";
-      }
       this.target = null;
-      this.formIndex = -1;
-      this.elementIndex = -1;
-      this.testIndex = -1;
-
       var self = this;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
@@ -174,12 +162,7 @@ targetSelected:
          for (var j = 0; j < inputsLength; j++) {
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
-               if (input === this.target) {
-                  this.formIndex = i;
-                  this.elementIndex = j;
-               } else {
-                  input.style.outline = "";
-               }
+               alert(input);
                input.style.cursor = "auto";
                input.removeEventListener('mouseover', function(e) { self.hover_on(this); }, false);
                input.removeEventListener('mouseout', function(e) { self.hover_off(this); }, false);
@@ -187,16 +170,31 @@ targetSelected:
             }
          }
       }
+      this.target.style.outline = "solid #fc0";
    },
 
 injectXSS:
    function() {
       if (typeof(this.target) !== 'undefined') {
-         // Save state
-         this.testIndex = this.testSelection.selectedIndex;
-
-         this.target.value = this.testSelection.options[this.testIndex].value;
-         this.target.form.submit();
+         var testIndex = this.testSelection.selectedIndex;
+         var url = this.target.form.action;
+         var params = this.target.name+"="+this.tests[testIndex].vector;
+         var method = this.target.form.method.toUpperCase();
+         if (method === "GET") {
+            url += (url.indexOf("?") == -1) ? "?" : "&";
+            url += params;
+            params = null;
+         }
+         var xhr = new XMLHttpRequest();
+         xhr.open(method, url, false); // TODO: make async
+         if (method === "POST") {
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Content-length", params.length);
+            xhr.setRequestHeader("Connection", "close");
+            xhr.send(params);
+         }
+         xhr.send(params);
+         alert(this.tests[testIndex].check(xhr.responseText));
       } else {
          alert("You need to select an input first!");
       }
