@@ -125,44 +125,6 @@ init:
       this.testSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
       this.detailSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
 
-      // Restore state (if any)
-      var state = this.getCookie("XD_state");
-      if (state === "injecting") {
-         // We just injected, store the result
-         var passed = this.tests[this.getCookie("XD_test")].check();
-         this.setCookie("XD_passed", passed, 1);
-         var expiry = -1;
-         if (this.getCookie("XD_multitest")) {
-            expiry = 1;
-         }
-         this.setCookie("XD_state", "next_test", expiry);
-         window.location = this.getCookie("XD_URL");
-      } else {
-         var nodeIndex = this.getCookie("XD_index");
-         if (nodeIndex) {
-            this.formIndex = nodeIndex.split(";")[0];
-            this.elementIndex = nodeIndex.split(";")[1];
-            this.target = document.forms[this.formIndex].elements[this.elementIndex];
-            this.target.style.outline = "solid #fc0";
-            var testIndex = this.getCookie("XD_test");
-            if (testIndex !== "") {
-               this.testIndex = testIndex;
-               this.testSelection.selectedIndex = testIndex;
-            }
-
-            var passed = this.getCookie("XD_passed");
-            if (passed === "true") {
-               this.target.style.outline = "solid green";
-            } else if (passed === "false") {
-               this.target.style.outline = "solid red";
-            }
-
-            if (passed === "true" && state === "next_test") {
-               this.testIndex++;
-               this.injectXSS();
-            }
-         }
-      }
       this.updateDetails();
    },
 
@@ -232,10 +194,6 @@ injectXSS:
       if (typeof(this.target) !== 'undefined') {
          // Save state
          this.testIndex = this.testSelection.selectedIndex;
-         this.setCookie("XD_URL", window.location, 1);
-         this.setCookie("XD_index", this.formIndex+";"+this.elementIndex, 1);
-         this.setCookie("XD_test", this.testIndex, 1);
-         this.setCookie("XD_state", "injecting", 1);
 
          this.target.value = this.testSelection.options[this.testIndex].value;
          this.target.form.submit();
@@ -247,28 +205,6 @@ injectXSS:
 randomString:
    function() {
       return "I'm a random string...NOT!!@#!:";
-   },
-
-setCookie:
-   function(c_name, value, expiredays) {
-      var exdate=new Date();
-      exdate.setDate(exdate.getDate()+expiredays);
-      document.cookie=c_name+ "=" +escape(value)+
-         ((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
-   },
-
-getCookie:
-   function(c_name) {
-      if (document.cookie.length>0) {
-         c_start=document.cookie.indexOf(c_name + "=");
-         if (c_start!=-1) {
-            c_start=c_start + c_name.length+1;
-            c_end=document.cookie.indexOf(";",c_start);
-            if (c_end==-1) c_end=document.cookie.length;
-            return unescape(document.cookie.substring(c_start,c_end));
-         }
-      }
-      return "";
    },
 
 updateDetails:
