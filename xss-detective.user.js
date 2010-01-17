@@ -133,8 +133,8 @@ addVector:
 
 chooseTarget:
    function() {
-      this.target = null;
       var self = this;
+      this.target = null;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
          form = document.forms[i];
@@ -143,18 +143,18 @@ chooseTarget:
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
                input.style.cursor =  "crosshair";
-               input.addEventListener('mouseover', function(e) { self.hover_on(this); }, false);
-               input.addEventListener('mouseout', function(e) { self.hover_off(this); }, false);
-               input.addEventListener('focus', function(e) { self.targetSelected(this, arguments.callee); }, false);
+               input.addEventListener('mouseover', self.hover_on, false);
+               input.addEventListener('mouseout', self.hover_off, false);
+               input.addEventListener('focus', self.targetSelected, false);
             }
          }
       }
    },
 
 targetSelected:
-   function(input, caller) {
-      var self = this;
-      this.target = input;
+   function(e) {
+      var self = detective;
+      this.target = e.currentTarget;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
          form = document.forms[i];
@@ -162,11 +162,10 @@ targetSelected:
          for (var j = 0; j < inputsLength; j++) {
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
-               alert(input);
                input.style.cursor = "auto";
-               input.removeEventListener('mouseover', function(e) { self.hover_on(this); }, false);
-               input.removeEventListener('mouseout', function(e) { self.hover_off(this); }, false);
-               input.removeEventListener('focus', caller, false);
+               input.removeEventListener('mouseover', self.hover_on, false);
+               input.removeEventListener('mouseout', self.hover_off, false);
+               input.removeEventListener('focus', self.targetSelected, false);
             }
          }
       }
@@ -224,13 +223,15 @@ hover:
    },
 
 hover_on:
-   function(el) {
-      this.hover(true, el);
+   function(e) {
+      var self = detective;
+      self.hover(true, e.currentTarget);
    },
 
 hover_off:
-   function(el) {
-      this.hover(false, el);
+   function(e) {
+      var self = detective;
+      self.hover(false, e.currentTarget);
    },
 };
 
