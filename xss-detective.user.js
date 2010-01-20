@@ -120,6 +120,11 @@ init:
       this.testSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
       this.detailSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
 
+      this.iframe = document.createElement('iframe');
+      this.iframe.name = "XD_AJAX_LOL";
+      this.iframe.style.display = "none";
+      this.toolbar.appendChild(this.iframe);
+
       this.updateDetails();
    },
 
@@ -176,24 +181,13 @@ injectXSS:
    function() {
       if (typeof(this.target) !== 'undefined') {
          var testIndex = this.testSelection.selectedIndex;
-         var url = this.target.form.action;
-         var params = this.target.name+"="+this.tests[testIndex].vector;
-         var method = this.target.form.method.toUpperCase();
-         if (method === "GET") {
-            url += (url.indexOf("?") == -1) ? "?" : "&";
-            url += params;
-            params = null;
-         }
-         var xhr = new XMLHttpRequest();
-         xhr.open(method, url, false); // TODO: make async
-         if (method === "POST") {
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Content-length", params.length);
-            xhr.setRequestHeader("Connection", "close");
-            xhr.send(params);
-         }
-         xhr.send(params);
-         alert(this.tests[testIndex].check(xhr.responseText));
+         var self = this;
+         var old_target = this.target.form.target;
+         this.target.value = this.tests[testIndex].vector;
+         this.target.form.target = this.iframe.name;
+         this.iframe.addEventListener('load', function (e) { alert(self.tests[testIndex].check(self.iframe.contentDocument)); }, false);
+         this.target.form.submit();
+         this.target.form.target = old_target;
       } else {
          alert("You need to select an input first!");
       }
