@@ -120,11 +120,6 @@ init:
       this.testSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
       this.detailSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
 
-      this.iframe = document.createElement('iframe');
-      this.iframe.name = "XD_AJAX_LOL";
-      this.iframe.style.display = "none";
-      this.toolbar.appendChild(this.iframe);
-
       this.updateDetails();
    },
 
@@ -181,16 +176,27 @@ injectXSS:
    function() {
       if (typeof(this.target) !== 'undefined') {
          var testIndex = this.testSelection.selectedIndex;
-         var self = this;
-         var old_target = this.target.form.target;
          this.target.value = this.tests[testIndex].vector;
-         this.target.form.target = this.iframe.name;
-         this.iframe.addEventListener('load', function (e) { alert(self.tests[testIndex].check(self.iframe.contentDocument)); }, false);
-         this.target.form.submit();
-         this.target.form.target = old_target;
+         this.asyncSubmit(this.target.form, this.tests[testIndex].check);
       } else {
          alert("You need to select an input first!");
       }
+   },
+
+asyncSubmit:
+   function(form, callback) {
+      var previous = form.target;
+      var iframe = document.createElement('iframe');
+      iframe.style.display = "none !important";
+      document.body.appendChild(iframe);
+      iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
+      iframe.addEventListener('load', function (e) {
+                                          alert(callback(e.currentTarget.contentDocument));
+                                          document.body.removeChild(e.currentTarget);
+                                          form.target = previous;
+                                      }, false);
+      form.target = iframe.name;
+      form.submit();
    },
 
 randomString:
