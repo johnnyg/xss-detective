@@ -188,13 +188,16 @@ asyncSubmit:
       var previous = form.target;
       var iframe = document.createElement('iframe');
       iframe.style.display = "none !important";
-      document.body.appendChild(iframe);
-      iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
+      iframe.name = "XD_AJAX_LOL";
       iframe.addEventListener('load', function (e) {
-                                          alert(callback(e.currentTarget.contentDocument));
-                                          document.body.removeChild(e.currentTarget);
-                                          form.target = previous;
-                                      }, false);
+         this.addEventListener('load', function (e) {
+            alert(callback(this.contentDocument));
+            document.body.removeChild(this);
+            form.target = previous;
+         }, false);
+         this.removeEventListener('load', arguments.callee, false);
+      }, false);
+      document.body.appendChild(iframe);
       form.target = iframe.name;
       form.submit();
    },
