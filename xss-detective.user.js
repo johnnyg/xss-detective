@@ -194,8 +194,12 @@ injectXSS:
    },
 
 randomString:
-   function() {
-      return "I'm a random string...NOT!!@#!:";
+   function(length) {
+      var rand = [];
+      while (rand.length < length) {
+         rand.push(String.fromCharCode(Math.floor(Math.random()*95)+32);
+      }
+      return rand.join('');
    },
 
 updateDetails:
