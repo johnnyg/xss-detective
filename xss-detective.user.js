@@ -188,7 +188,7 @@ asyncSubmit:
       var previous = form.target;
       var iframe = document.createElement('iframe');
       iframe.style.display = "none !important";
-      iframe.name = "XD_AJAX_LOL";
+      iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
       iframe.addEventListener('load', function (e) {
          this.addEventListener('load', function (e) {
             alert(callback(this.contentDocument));
