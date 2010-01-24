@@ -8,6 +8,19 @@
 // @include http://www.gaylord.com/*
 // ==/UserScript==
 
+function Deferred() {
+   this.callbacks = new Array();
+   this.addCallback = function (callback) {
+      this.callbacks.push(callback);
+   };
+   this.callback = function (result) {
+      while (this.callbacks.length > 0) {
+         result = this.callbacks.shift()(result);
+      }
+   }
+   return true;
+}
+
 var detective = {
 
 buildToolbar:
@@ -177,21 +190,24 @@ injectXSS:
       if (typeof(this.target) !== 'undefined') {
          var testIndex = this.testSelection.selectedIndex;
          this.target.value = this.tests[testIndex].vector;
-         this.asyncSubmit(this.target.form, this.tests[testIndex].check);
+         var deferred = this.asyncSubmit(this.target.form);
+         deferred.addCallback(this.tests[testIndex].check);
+         deferred.addCallback(alert);
       } else {
          alert("You need to select an input first!");
       }
    },
 
 asyncSubmit:
-   function(form, callback) {
+   function(form) {
       var previous = form.target;
+      var deferred = new Deferred();
       var iframe = document.createElement('iframe');
       iframe.style.display = "none !important";
       iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
       iframe.addEventListener('load', function (e) {
          this.addEventListener('load', function (e) {
-            alert(callback(this.contentDocument));
+            deferred.callback(this.contentDocument);
             document.body.removeChild(this);
             form.target = previous;
          }, false);
@@ -200,6 +216,7 @@ asyncSubmit:
       document.body.appendChild(iframe);
       form.target = iframe.name;
       form.submit();
+      return deferred;
    },
 
 randomString:
