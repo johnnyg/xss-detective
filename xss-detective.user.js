@@ -9,7 +9,7 @@
 // ==/UserScript==
 
 function Deferred() {
-   this.callbacks = new Array();
+   this.callbacks = [];
    this.addCallback = function (callback) {
       this.callbacks.push(callback);
    };
