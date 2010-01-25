@@ -191,11 +191,15 @@ targetSelected:
 injectXSS:
    function() {
       if (typeof(this.target) !== 'undefined') {
-         var testIndex = this.testSelection.selectedIndex;
-         this.target.value = this.tests[testIndex].vector;
-         var deferred = this.asyncSubmit(this.target.form);
-         deferred.addCallback(this.tests[testIndex].check);
-         deferred.addCallback(alert);
+         this.passed = [];
+         for (var testIndex in this.tests) {
+            //var testIndex = this.testSelection.selectedIndex;
+            this.target.value = this.tests[testIndex].vector;
+            var deferred = this.asyncSubmit(this.target.form);
+            deferred.addCallback(this.tests[testIndex].check);
+            deferred.addCallback(this.storeResult, testIndex);
+            deferred.addCallback(alert);
+         }
       } else {
          alert("You need to select an input first!");
       }
@@ -229,6 +233,12 @@ randomString:
          rand.push(String.fromCharCode(Math.floor(Math.random()*95)+32));
       }
       return rand.join('');
+   },
+
+storeResult:
+   function(passed, testIndex) {
+      this.passed[testIndex] = passed;
+      return passed;
    },
 
 updateDetails:
