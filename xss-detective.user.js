@@ -12,6 +12,7 @@ function Deferred() {
    this.callbacks = [];
    this.addCallback = function (callback) {
       this.callbacks.push(callback);
+      return this;
    };
    this.callback = function (result) {
       while (this.callbacks.length > 0) {
