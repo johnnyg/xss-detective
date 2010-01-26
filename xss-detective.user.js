@@ -206,7 +206,7 @@ injectXSS:
             this.target.value = this.tests[testIndex].vector;
             var deferred = this.asyncSubmit(this.target.form);
             deferred.addCallback(this.tests[testIndex].check);
-            deferred.addCallback(this.storeResult.bind(this), testIndex);
+            deferred.addCallback(this.storeResult, testIndex);
             deferred.addCallback(alert);
          }
       } else {
