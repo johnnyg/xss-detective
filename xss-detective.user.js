@@ -24,6 +24,13 @@ function Deferred() {
    return true;
 }
 
+Function.prototype.bind = function(scope) {
+   var self = this;
+   return function() {
+      return self.apply(scope, arguments);
+   }
+}
+
 var detective = {
 
 buildToolbar:
@@ -104,18 +111,22 @@ createButton:
 init:
    function() {
 
-      var self = this;
+      this.targetEvents = {
+         'mouseover' : this.hoverOn.bind(this),
+         'mouseout' : this.hoverOff.bind(this),
+         'focus' : this.targetSelected.bind(this)
+      };
 
       this.toolbar = this.buildToolbar();
 
       //this.addVector("Random String", this.randomString());
 
-      this.createButton('Select input', function (e) { self.chooseTarget(); });
+      this.createButton('Select input', this.chooseTarget.bind(this));
 
       this.createSelection("tests", this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
       this.testSelection = document.getElementById('tests');
 
-      this.createButton('Inject XSS test vector', function(e) { self.injectXSS(); });
+      this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
       this.createSelection("details_types", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
       this.detailSelection = document.getElementById('details_types');
@@ -133,8 +144,8 @@ init:
       this.toolbar.appendChild(this.details);
 
       // Onlly add events after details field exists
-      this.testSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
-      this.detailSelection.addEventListener('change', function(e) { self.updateDetails(); }, false);
+      this.testSelection.addEventListener('change', this.updateDetails.bind(this), false);
+      this.detailSelection.addEventListener('change', this.updateDetails.bind(this), false);
 
       this.updateDetails();
    },
@@ -148,8 +159,7 @@ addVector:
    },
 
 chooseTarget:
-   function() {
-      var self = this;
+   function(e) {
       this.target = null;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
@@ -159,9 +169,9 @@ chooseTarget:
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
                input.style.cursor =  "crosshair";
-               input.addEventListener('mouseover', self.hover_on, false);
-               input.addEventListener('mouseout', self.hover_off, false);
-               input.addEventListener('focus', self.targetSelected, false);
+               for (var i in this.targetEvents) {
+                  input.addEventListener(i, this.targetEvents[i], false);
+               }
             }
          }
       }
@@ -169,8 +179,7 @@ chooseTarget:
 
 targetSelected:
    function(e) {
-      var self = detective;
-      self.target = e.currentTarget;
+      this.target = e.currentTarget;
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
          form = document.forms[i];
@@ -179,17 +188,17 @@ targetSelected:
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
                input.style.cursor = "auto";
-               input.removeEventListener('mouseover', self.hover_on, false);
-               input.removeEventListener('mouseout', self.hover_off, false);
-               input.removeEventListener('focus', self.targetSelected, false);
+               for (var i in this.targetEvents) {
+                  input.removeEventListener(i, this.targetEvents[i], false);
+               }
             }
          }
       }
-      self.hover(true, self.target);
+      this.hover(true, this.target);
    },
 
 injectXSS:
-   function() {
+   function(e) {
       if (typeof(this.target) !== 'undefined') {
          this.passed = [];
          for (var testIndex in this.tests) {
@@ -197,7 +206,7 @@ injectXSS:
             this.target.value = this.tests[testIndex].vector;
             var deferred = this.asyncSubmit(this.target.form);
             deferred.addCallback(this.tests[testIndex].check);
-            deferred.addCallback(this.storeResult, testIndex);
+            deferred.addCallback(this.storeResult.bind(this), testIndex);
             deferred.addCallback(alert);
          }
       } else {
@@ -210,7 +219,7 @@ asyncSubmit:
       var previous = form.target;
       var deferred = new Deferred();
       var iframe = document.createElement('iframe');
-      iframe.style.display = "none !important";
+      iframe.style.display = "none";
       iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
       iframe.addEventListener('load', function (e) {
          this.addEventListener('load', function (e) {
@@ -238,11 +247,11 @@ randomString:
 storeResult:
    function(passed, testIndex) {
       this.passed[testIndex] = passed;
-      return passed;
+      return testIndex+" => "+passed;
    },
 
 updateDetails:
-   function() {
+   function(e) {
       var selected = this.testSelection.options[this.testSelection.selectedIndex];
       var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
       var details = "";
@@ -259,16 +268,14 @@ hover:
       el.style.outline = on ? "solid #fc0" : "";
    },
 
-hover_on:
+hoverOn:
    function(e) {
-      var self = detective;
-      self.hover(true, e.currentTarget);
+      this.hover(true, e.currentTarget);
    },
 
-hover_off:
+hoverOff:
    function(e) {
-      var self = detective;
-      self.hover(false, e.currentTarget);
+      this.hover(false, e.currentTarget);
    },
 };
 
