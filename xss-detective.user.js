@@ -59,7 +59,7 @@ buildToolbar:
    },
 
 createSelection:
-   function(id, options, getAttributes) {
+   function(id, multiple, options, getAttributes) {
       var select = document.createElement('select');
       select.style.cssFloat = 'left';
       select.style.width = 'auto';
@@ -70,6 +70,8 @@ createSelection:
       select.style.color = 'Black';
       select.style.cursor = 'pointer';
       select.id = id;
+      select.size = 1;
+      select.multiple = multiple;
       for (i in options) {
          var attributes = getAttributes(options[i]);
          var option = document.createElement('option');
@@ -129,12 +131,12 @@ init:
 
       this.createButton('Select input', this.chooseTarget.bind(this));
 
-      this.createSelection("tests", this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
+      this.createSelection("tests", true, this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
       this.testSelection = document.getElementById('tests');
 
       this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
-      this.createSelection("details_types", ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
+      this.createSelection("details_types", false, ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
       this.detailSelection = document.getElementById('details_types');
 
       this.details = document.createElement('input');
@@ -206,16 +208,21 @@ targetSelected:
 injectXSS:
    function(e) {
       if (typeof(this.target) !== 'undefined') {
-         this.passed = [];
-         for (var testIndex in this.tests) {
-            //var testIndex = this.testSelection.selectedIndex;
-            this.target.value = this.tests[testIndex].vector;
-            var deferred = this.asyncSubmit(this.target.form);
-            deferred.addCallback(this.tests[testIndex].check);
-            deferred.addCallback(this.storeResult, this, testIndex);
-            if (DEBUG) {
-               deferred.addCallback(alert);
+         var selected = this.getSelectedTests();
+         if (selected.length > 0) {
+            this.passed = [];
+            for (var i in selected) {
+               var testIndex = selected[i];
+               this.target.value = this.tests[testIndex].vector;
+               var deferred = this.asyncSubmit(this.target.form);
+               deferred.addCallback(this.tests[testIndex].check);
+               deferred.addCallback(this.storeResult, this, testIndex);
+               if (DEBUG) {
+                  deferred.addCallback(alert);
+               }
             }
+         } else {
+            alert("You need to select at least one test!");
          }
       } else {
          alert("You need to select an input first!");
@@ -243,6 +250,22 @@ asyncSubmit:
       return deferred;
    },
 
+getSelectedTests:
+   function() {
+      var selectedTests = [];
+      var selectedIndex = this.testSelection.selectedIndex;
+      var length = this.testSelection.length;
+      if (selectedIndex >= 0 && selectedIndex < length) {
+         selectedTests.push(selectedIndex);
+      }
+      for (var i = selectedIndex + 1; this.testSelection.multiple && i < length; i++) {
+         if (this.testSelection[i].selected) {
+            selectedTests.push(i);
+         }
+      }
+      return selectedTests;
+   },
+
 randomString:
    function(length) {
       var rand = [];
@@ -262,15 +285,18 @@ storeResult:
 
 updateDetails:
    function(e) {
-      var selected = this.testSelection.options[this.testSelection.selectedIndex];
-      var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
-      var details = "";
-      if (type === "Description") {
-         details = selected.title;
-      } else {
-         details = selected.value;
+      if (this.testSelection.selectedIndex >= 0 &&
+          this.testSelection.selectedIndex < this.testSelection.length) {
+         var selected = this.testSelection.options[this.testSelection.selectedIndex];
+         var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
+         var details = "";
+         if (type === "Description") {
+            details = selected.title;
+         } else {
+            details = selected.value;
+         }
+         this.details.value = details;
       }
-      this.details.value = details;
    },
 
 hover:
