@@ -116,6 +116,7 @@ createButton:
 init:
    function() {
 
+      this.target = null;
       this.targetEvents = {
          'mouseover' : this.hoverOn.bind(this),
          'mouseout' : this.hoverOff.bind(this),
@@ -153,7 +154,10 @@ addVector:
 
 chooseTarget:
    function(e) {
-      this.target = null;
+      if (this.target !== null) {
+         this.hover(false, this.target);
+         this.target = null;
+      }
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
          form = document.forms[i];
@@ -192,7 +196,7 @@ targetSelected:
 
 injectXSS:
    function(e) {
-      if (typeof(this.target) !== 'undefined') {
+      if (this.target !== null) {
          var selected = this.getSelectedTests();
          if (selected.length > 0) {
             this.passed = [];
@@ -271,7 +275,7 @@ storeResult:
 updateDetails:
    function(e) {
       var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
-      for (var i in this.testSelection) {
+      for (var i in this.tests) {
          if (type === "Description") {
             this.testSelection[i].title = this.tests[i].description;
          } else {
