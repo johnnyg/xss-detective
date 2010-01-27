@@ -8,13 +8,15 @@
 // @include http://www.gaylord.com/*
 // ==/UserScript==
 
+DEBUG = true;
+
 function Deferred() {
    this.callbacks = [];
-   this.addCallback = function (callback) {
+   this.addCallback = function (callback, context) {
       this.callbacks.push({
          func : callback,
-         scope : arguments.callee.caller,
-         args : Array.prototype.slice.call(arguments, 1)
+         scope : context,
+         args : Array.prototype.slice.call(arguments, 2)
       });
       return this;
    };
@@ -210,8 +212,10 @@ injectXSS:
             this.target.value = this.tests[testIndex].vector;
             var deferred = this.asyncSubmit(this.target.form);
             deferred.addCallback(this.tests[testIndex].check);
-            deferred.addCallback(this.storeResult, testIndex);
-            deferred.addCallback(alert);
+            deferred.addCallback(this.storeResult, this, testIndex);
+            if (DEBUG) {
+               deferred.addCallback(alert);
+            }
          }
       } else {
          alert("You need to select an input first!");
@@ -251,7 +255,9 @@ randomString:
 storeResult:
    function(passed, testIndex) {
       this.passed[testIndex] = passed;
-      return testIndex+" => "+passed;
+      if (DEBUG) {
+         return testIndex+" => "+passed;
+      }
    },
 
 updateDetails:
