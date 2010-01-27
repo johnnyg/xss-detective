@@ -46,7 +46,6 @@ buildToolbar:
       toolbar.style.left = '0px';
       toolbar.style.bottom = '0px';
       toolbar.style.width = '100%';
-      toolbar.style.height = '40px';
       toolbar.style.background = 'LightGray';
       toolbar.style.borderTop = '1px solid Gray';
       toolbar.style.color = 'Black';
@@ -55,7 +54,7 @@ buildToolbar:
       toolbar.style.fontFamily = 'Tahoma, Sans'
       toolbar.style.fontSize = '0.8em';
       document.body.appendChild(toolbar);
-      return toolbar
+      return toolbar;
    },
 
 createSelection:
@@ -65,8 +64,7 @@ createSelection:
       select.style.width = 'auto';
       select.style.border = '1px solid DarkGray';
       select.style.background = '#bbb';
-      select.style.margin = '4px';
-      select.style.padding = '3px';
+      select.style.margin = '5px';
       select.style.color = 'Black';
       select.style.cursor = 'pointer';
       select.id = id;
@@ -98,11 +96,10 @@ createButton:
       var button = document.createElement('div');
       button.style.cssFloat = 'left';
       button.style.width = 'auto';
-      button.style.height = '16px';
       button.style.border = '1px solid DarkGray';
       button.style.background = '#bbb';
-      button.style.margin = '4px';
-      button.style.padding = '3px';
+      button.style.margin = '5px';
+      button.style.padding = '0 2px 0 2px';
       button.style.color = 'Black';
       button.style.cursor = 'pointer';
 
@@ -138,18 +135,6 @@ init:
 
       this.createSelection("details_types", false, ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
       this.detailSelection = document.getElementById('details_types');
-
-      this.details = document.createElement('input');
-      this.details.type = 'text';
-      this.details.style.cssFloat = 'left';
-      this.details.style.width = '70%';
-      this.details.style.border = '0px';
-      this.details.style.background = 'LightGray';
-      this.details.style.margin = '4px';
-      this.details.style.padding = '3px';
-      this.details.style.color = 'Black';
-      this.details.id = "details";
-      this.toolbar.appendChild(this.details);
 
       // Onlly add events after details field exists
       this.testSelection.addEventListener('change', this.updateDetails.bind(this), false);
@@ -285,17 +270,13 @@ storeResult:
 
 updateDetails:
    function(e) {
-      if (this.testSelection.selectedIndex >= 0 &&
-          this.testSelection.selectedIndex < this.testSelection.length) {
-         var selected = this.testSelection.options[this.testSelection.selectedIndex];
-         var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
-         var details = "";
+      var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
+      for (var i in this.testSelection) {
          if (type === "Description") {
-            details = selected.title;
+            this.testSelection[i].title = this.tests[i].description;
          } else {
-            details = selected.value;
+            this.testSelection[i].title = this.tests[i].vector;
          }
-         this.details.value = details;
       }
    },
 
