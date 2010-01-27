@@ -10,15 +10,19 @@
 
 function Deferred() {
    this.callbacks = [];
-   this.addCallback = function (cb) {
-      this.callbacks.push({ callback : cb, callbackArgs : Array.prototype.slice.call(arguments, 1) });
+   this.addCallback = function (callback) {
+      this.callbacks.push({
+         func : callback,
+         scope : arguments.callee.caller,
+         args : Array.prototype.slice.call(arguments, 1)
+      });
       return this;
    };
    this.callback = function (result) {
       while (this.callbacks.length > 0) {
          var cb = this.callbacks.shift();
-         cb.callbackArgs.unshift(result);
-         result = cb.callback.apply(null, cb.callbackArgs);
+         cb.args.unshift(result);
+         result = cb.func.apply(cb.scope, cb.args);
       }
    }
    return true;
