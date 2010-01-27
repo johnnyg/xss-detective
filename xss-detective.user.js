@@ -220,11 +220,15 @@ injectXSS:
 
 asyncSubmit:
    function(form) {
+      if (typeof(arguments.callee.counter) === 'undefined') {
+         arguments.callee.counter = 0;
+      }
+      var counter = arguments.callee.counter++;
       var previous = form.target;
       var deferred = new Deferred();
       var iframe = document.createElement('iframe');
       iframe.style.display = "none";
-      iframe.name = "XD_AJAX_LOL_"+this.randomString(6);
+      iframe.name = "XD_AJAX_LOL_"+counter;
       iframe.addEventListener('load', function (e) {
          this.addEventListener('load', function (e) {
             deferred.callback(this.contentDocument);
