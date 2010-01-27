@@ -230,12 +230,11 @@ asyncSubmit:
       iframe.style.display = "none";
       iframe.name = "XD_AJAX_LOL_"+counter;
       iframe.addEventListener('load', function (e) {
-         this.addEventListener('load', function (e) {
+         if (this.contentDocument.body.firstChild !== null) {
             deferred.callback(this.contentDocument);
             document.body.removeChild(this);
             form.target = previous;
-         }, false);
-         this.removeEventListener('load', arguments.callee, false);
+         }
       }, false);
       document.body.appendChild(iframe);
       form.target = iframe.name;
