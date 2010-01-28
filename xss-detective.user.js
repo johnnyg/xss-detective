@@ -129,12 +129,22 @@ init:
 
       this.createButton('Select input', this.chooseTarget.bind(this));
 
-      this.createSelection("tests", true, this.tests, function(test) { return {"text" : test.name, "title" : test.description, "value" : test.vector}; });
+      this.createSelection("tests", true, this.tests, function(test) {
+            return {"text" : test.name, "value" : test.vector};
+      });
       this.testSelection = document.getElementById('tests');
 
       this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
-      this.createSelection("details_types", false, ["Description", "Vector"], function(option) { return { "text" : option, "value" : option }; });
+      this.createSelection("details_types", false, ["Description", "Vector"], function(option) {
+            return {
+               "text" : option,
+               "title" : "Show "+option.toLowerCase()+" as test tooltip",
+               "value" : option,
+               "selected" : option == "Description"
+            };
+      });
+
       this.detailSelection = document.getElementById('details_types');
 
       // Onlly add events after details field exists
