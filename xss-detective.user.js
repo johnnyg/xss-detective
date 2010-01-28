@@ -50,15 +50,16 @@ buildToolbar:
       toolbar.style.borderTop = '1px solid Gray';
       toolbar.style.color = 'Black';
       toolbar.style.overflow = 'hidden';
-
       toolbar.style.fontFamily = 'Tahoma, Sans'
       toolbar.style.fontSize = '0.8em';
+      toolbar.hide = function() { this.style.display = 'none' };
+      toolbar.show = function() { this.style.display = 'inline' };
       document.body.appendChild(toolbar);
       return toolbar;
    },
 
 createSelection:
-   function(id, multiple, options, getAttributes) {
+   function(multiple, options, getAttributes) {
       var select = document.createElement('select');
       select.style.cssFloat = 'left';
       select.style.width = 'auto';
@@ -67,7 +68,6 @@ createSelection:
       select.style.margin = '5px';
       select.style.color = 'Black';
       select.style.cursor = 'pointer';
-      select.id = id;
       select.size = 1;
       select.multiple = multiple;
       for (i in options) {
@@ -78,7 +78,10 @@ createSelection:
          }
          select.appendChild(option);
       }
+      select.hide = this.toolbar.hide;
+      select.show = this.toolbar.show;
       this.toolbar.appendChild(select);
+      return select;
    },
 
 buttonHover:
@@ -102,15 +105,16 @@ createButton:
       button.style.padding = '0 2px 0 2px';
       button.style.color = 'Black';
       button.style.cursor = 'pointer';
-
       button.textContent = text;
-
       button.addEventListener('mouseover', this.buttonHover, false);
       button.addEventListener('mouseout', this.buttonLeave, false);
       if (handler) {
          button.addEventListener('click', handler, false);
       }
+      button.hide = this.toolbar.hide;
+      button.show = this.toolbar.show;
       this.toolbar.appendChild(button);
+      return button;
    },
 
 init:
@@ -129,14 +133,13 @@ init:
 
       this.createButton('Select input', this.chooseTarget.bind(this));
 
-      this.createSelection("tests", true, this.tests, function(test) {
+      this.testSelection = this.createSelection(true, this.tests, function(test) {
             return {"text" : test.name, "value" : test.vector};
       });
-      this.testSelection = document.getElementById('tests');
 
-      this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
+      this.injectButton = this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
-      this.createSelection("details_types", false, ["Description", "Vector"], function(option) {
+      this.detailSelection = this.createSelection(false, ["Description", "Vector"], function(option) {
             return {
                "text" : option,
                "title" : "Show "+option.toLowerCase()+" as test tooltip",
@@ -145,11 +148,14 @@ init:
             };
       });
 
-      this.detailSelection = document.getElementById('details_types');
-
-      // Onlly add events after details field exists
+      // Only add events after details field exists
       this.testSelection.addEventListener('change', this.updateDetails.bind(this), false);
       this.detailSelection.addEventListener('change', this.updateDetails.bind(this), false);
+
+      // Hide these until a target is selected
+      this.testSelection.hide();
+      this.injectButton.hide();
+      this.detailSelection.hide();
 
       this.updateDetails();
    },
@@ -167,6 +173,9 @@ chooseTarget:
       if (this.target !== null) {
          this.hover(false, this.target);
          this.target = null;
+         this.testSelection.hide();
+         this.injectButton.hide();
+         this.detailSelection.hide();
       }
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
@@ -202,6 +211,9 @@ targetSelected:
          }
       }
       this.hover(true, this.target);
+      this.testSelection.show();
+      this.injectButton.show();
+      this.detailSelection.show();
    },
 
 injectXSS:
@@ -310,6 +322,16 @@ hoverOn:
 hoverOff:
    function(e) {
       this.hover(false, e.currentTarget);
+   },
+
+show:
+   function() {
+      this.toolbar.show();
+   },
+
+hide:
+   function() {
+      this.toolbar.hide();
    },
 };
 
