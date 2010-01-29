@@ -185,8 +185,8 @@ chooseTarget:
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
                input.style.cursor =  "crosshair";
-               for (var i in this.targetEvents) {
-                  input.addEventListener(i, this.targetEvents[i], false);
+               for (var e in this.targetEvents) {
+                  input.addEventListener(e, this.targetEvents[e], false);
                }
             }
          }
@@ -204,8 +204,8 @@ targetSelected:
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
                input.style.cursor = "auto";
-               for (var i in this.targetEvents) {
-                  input.removeEventListener(i, this.targetEvents[i], false);
+               for (var e in this.targetEvents) {
+                  input.removeEventListener(e, this.targetEvents[e], false);
                }
             }
          }
