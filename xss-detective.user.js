@@ -23,8 +23,12 @@ function Deferred() {
    this.callback = function (result) {
       while (this.callbacks.length > 0) {
          var cb = this.callbacks.shift();
-         cb.args.unshift(result);
-         result = cb.func.apply(cb.scope, cb.args);
+         result = cb.func.apply(cb.scope, [result].concat(cb.args));
+         if (result instanceof Deferred) {
+            while (this.callbacks.length > 0) {
+               result.callbacks.push(this.callbacks.shift());
+            }
+         }
       }
    }
    return true;
