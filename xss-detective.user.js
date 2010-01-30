@@ -283,8 +283,10 @@ getSelectedTests:
 randomString:
    function(length) {
       var rand = [];
+      var min = ' '.charCodeAt(0);
+      var max = '~'.charCodeAt(0);
       while (rand.length < length) {
-         rand.push(String.fromCharCode(Math.floor(Math.random()*95)+32));
+         rand.push(String.fromCharCode(Math.floor(Math.random()*(max-min+1))+min));
       }
       return rand.join('');
    },
