@@ -152,6 +152,21 @@ init:
 
       this.injectButton = this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
+      this.dimmer = document.createElement('div');
+      this.dimmer.show = this.toolbar.show;
+      this.dimmer.hide = this.toolbar.hide;
+      this.dimmer.style.position = "fixed";
+      this.dimmer.style.zIndex = 10;
+      this.dimmer.style.left = "0px";
+      this.dimmer.style.top = "0px";
+      this.dimmer.style.height = "100%";
+      this.dimmer.style.width = "100%";
+      this.dimmer.style.backgroundColor = "black";
+      this.dimmer.style.opacity = 0.8;
+      this.dimmer.style.cursor = "crosshair";
+      this.dimmer.hide();
+      document.body.appendChild(this.dimmer);
+
       // Only add events after fields exist
       this.testSelection.addEventListener('change', this.updateTests.bind(this), false);
       this.detailSelection.addEventListener('change', this.updateDetails.bind(this), false);
@@ -191,6 +206,8 @@ chooseTarget:
          for (var j = 0; j < inputsLength; j++) {
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
+               input.style.position = "relative";
+               input.style.zIndex = 20;
                input.style.cursor =  "crosshair";
                for (var e in this.targetEvents) {
                   input.addEventListener(e, this.targetEvents[e], false);
@@ -198,6 +215,8 @@ chooseTarget:
             }
          }
       }
+      this.toolbar.hide();
+      this.dimmer.show();
    },
 
 targetSelected:
@@ -210,6 +229,8 @@ targetSelected:
          for (var j = 0; j < inputsLength; j++) {
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
+               input.style.zIndex = "";
+               input.style.position = "static";
                input.style.cursor = "auto";
                for (var e in this.targetEvents) {
                   input.removeEventListener(e, this.targetEvents[e], false);
@@ -221,6 +242,8 @@ targetSelected:
       this.testSelection.show();
       this.detailSelection.show();
       this.updateTests();
+      this.toolbar.show();
+      this.dimmer.hide();
    },
 
 injectXSS:
