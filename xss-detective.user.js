@@ -118,7 +118,7 @@ createButton:
    },
 
 init:
-   function() {
+   function(visible) {
 
       this.target = null;
       this.targetEvents = {
@@ -158,6 +158,9 @@ init:
       this.detailSelection.hide();
 
       this.updateDetails();
+
+      this.hidden = visible;
+      this.toggle();
    },
 
 addVector:
@@ -318,6 +321,19 @@ updateDetails:
       }
    },
 
+setShortcutKey:
+   function(key) {
+      this.shortcutKey = key.charCodeAt(0);
+      document.addEventListener('keypress', this.checkShortcut.bind(this), false);
+   },
+
+checkShortcut:
+   function(e) {
+      if (e.ctrlKey && e.which === this.shortcutKey) {
+         this.toggle();
+      }
+   },
+
 hover:
    function(on, el) {
       el.style.outline = on ? "solid #fc0" : "";
@@ -333,14 +349,14 @@ hoverOff:
       this.hover(false, e.currentTarget);
    },
 
-show:
+toggle:
    function() {
-      this.toolbar.show();
-   },
-
-hide:
-   function() {
-      this.toolbar.hide();
+      this.hidden = !this.hidden;
+      if (this.hidden) {
+         this.toolbar.hide();
+      } else {
+         this.toolbar.show();
+      }
    },
 };
 
@@ -358,4 +374,5 @@ if (typeof(xssTestVectors) === 'undefined') {
 for (vector in xssTestVectors) {
    detective.addVector(xssTestVectors[vector]);
 }
-detective.init();
+detective.init(false);
+detective.setShortcutKey('/');
