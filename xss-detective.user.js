@@ -291,6 +291,7 @@ asyncSubmit:
       document.body.appendChild(iframe);
       form.target = iframe.name;
       form.submit();
+      form.reset();
       return deferred;
    },
 
