@@ -137,8 +137,6 @@ init:
             return {"text" : test.name, "value" : test.vector};
       });
 
-      this.injectButton = this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
-
       this.detailSelection = this.createSelection(false, ["Description", "Vector"], function(option) {
             return {
                "text" : option,
@@ -148,8 +146,10 @@ init:
             };
       });
 
-      // Only add events after details field exists
-      this.testSelection.addEventListener('change', this.updateDetails.bind(this), false);
+      this.injectButton = this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
+
+      // Only add events after fields exist
+      this.testSelection.addEventListener('change', this.updateTests.bind(this), false);
       this.detailSelection.addEventListener('change', this.updateDetails.bind(this), false);
 
       // Hide these until a target is selected
@@ -212,8 +212,8 @@ targetSelected:
       }
       this.hover(true, this.target);
       this.testSelection.show();
-      this.injectButton.show();
       this.detailSelection.show();
+      this.updateTests();
    },
 
 injectXSS:
@@ -293,6 +293,16 @@ storeResult:
       this.passed[testIndex] = passed;
       if (DEBUG) {
          return testIndex+" => "+passed;
+      }
+   },
+
+updateTests:
+   function(e) {
+      var selected = this.getSelectedTests();
+      if (selected.length == 0) {
+         this.injectButton.hide();
+      } else {
+         this.injectButton.show();
       }
    },
 
