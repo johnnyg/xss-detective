@@ -269,10 +269,7 @@ getSelectedTests:
       var selectedTests = [];
       var selectedIndex = this.testSelection.selectedIndex;
       var length = this.testSelection.length;
-      if (selectedIndex >= 0 && selectedIndex < length) {
-         selectedTests.push(selectedIndex);
-      }
-      for (var i = selectedIndex + 1; this.testSelection.multiple && i < length; i++) {
+      for (var i = selectedIndex; this.testSelection.multiple && i >= 0 && i < length; i++) {
          if (this.testSelection[i].selected) {
             selectedTests.push(i);
          }
