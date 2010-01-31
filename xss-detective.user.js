@@ -25,7 +25,8 @@ function Deferred() {
          var cb = this.callbacks.shift();
          result = cb.func.apply(cb.scope, [result].concat(cb.args));
          if (result instanceof Deferred) {
-            result.callbacks.push.apply(this, this.callbacks.splice(0, this.callbacks.length));
+            result.callbacks.push.apply(result.callbacks, this.callbacks);
+            this.callbacks = [];
          }
       }
    }
