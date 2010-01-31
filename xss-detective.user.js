@@ -266,13 +266,14 @@ injectXSS:
       if (this.target !== null) {
          var selected = this.getSelectedTests();
          if (selected.length > 0) {
-            this.passed = [];
+            this.passed = {};
             for (var i in selected) {
                var testIndex = selected[i];
                this.target.value = this.tests[testIndex].vector;
                var deferred = this.asyncSubmit(this.target.form);
                deferred.addCallback(this.tests[testIndex].check);
                deferred.addCallback(this.storeResult, this, testIndex);
+               deferred.addCallback(this.updateResults, this, selected.length);
                if (DEBUG) {
                   deferred.addCallback(alert);
                }
@@ -337,9 +338,25 @@ randomString:
 storeResult:
    function(passed, testIndex) {
       this.passed[testIndex] = passed;
-      if (DEBUG) {
-         return testIndex+" => "+passed;
+   },
+
+updateResults:
+   function(total) {
+      var passed = 0;
+      var failed = 0;
+      for (var i in this.passed) {
+         if (this.passed[i]) {
+            passed++;
+         } else {
+            failed++;
+         }
       }
+      if (failed > 0) {
+         this.target.style.outline = "solid Red";
+      } else if (passed + failed === total) {
+         this.target.style.outline = "solid ForestGreen";
+      }
+      return passed+" / "+(passed+failed);
    },
 
 updateTests:
@@ -417,5 +434,5 @@ if (typeof(xssTestVectors) === 'undefined') {
 for (vector in xssTestVectors) {
    detective.addVector(xssTestVectors[vector]);
 }
-detective.init(false);
+detective.init(DEBUG);
 detective.setShortcutKey('/');
