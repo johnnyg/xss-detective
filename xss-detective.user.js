@@ -129,6 +129,7 @@ init:
          'mouseout' : this.hoverOff.bind(this),
          'focus' : this.targetSelected.bind(this)
       };
+      this.cancel = this.cancelTarget.bind(this);
 
       this.toolbar = this.buildToolbar();
 
@@ -216,6 +217,12 @@ chooseTarget:
       }
       this.toolbar.hide();
       this.dimmer.show();
+      document.addEventListener('keypress', this.cancel, false);
+   },
+
+cancelTarget:
+   function(e) {
+      this.targetSelected({ currentTarget : null });
    },
 
 targetSelected:
@@ -237,12 +244,15 @@ targetSelected:
             }
          }
       }
-      this.hover(true, this.target);
-      this.testSelection.show();
-      this.detailSelection.show();
-      this.updateTests();
+      if (this.target !== null) {
+         this.hover(true, this.target);
+         this.testSelection.show();
+         this.detailSelection.show();
+         this.updateTests();
+      }
       this.toolbar.show();
       this.dimmer.hide();
+      document.removeEventListener('keypress', this.cancel, false);
    },
 
 injectXSS:
