@@ -23,13 +23,16 @@ function Deferred() {
    this.callback = function (result) {
       while (this.callbacks.length > 0) {
          var cb = this.callbacks.shift();
-         result = cb.func.apply(cb.scope, [result].concat(cb.args));
+         if (typeof(result) !== 'undefined') {
+            cb.args.unshift(result);
+         }
+         result = cb.func.apply(cb.scope, cb.args);
          if (result instanceof Deferred) {
             result.callbacks.push.apply(result.callbacks, this.callbacks);
             this.callbacks = [];
          }
       }
-   }
+   };
    return true;
 }
 
