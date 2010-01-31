@@ -222,7 +222,10 @@ chooseTarget:
 
 cancelTarget:
    function(e) {
-      this.targetSelected({ currentTarget : null });
+      var ESC = 27;
+      if (e.which === ESC) {
+         this.targetSelected({ currentTarget : null });
+      }
    },
 
 targetSelected:
