@@ -269,8 +269,7 @@ injectXSS:
             this.passed = {};
             for (var i in selected) {
                var testIndex = selected[i];
-               this.target.value = this.tests[testIndex].vector;
-               var deferred = this.asyncSubmit(this.target.form);
+               var deferred = this.asyncSubmit(this.target, this.tests[testIndex].vector);
                deferred.addCallback(this.tests[testIndex].check);
                deferred.addCallback(this.storeResult, this, testIndex);
                deferred.addCallback(this.updateResults, this, selected.length);
@@ -287,12 +286,13 @@ injectXSS:
    },
 
 asyncSubmit:
-   function(form) {
+   function(element, value) {
       if (typeof(arguments.callee.counter) === 'undefined') {
          arguments.callee.counter = 0;
       }
       var counter = arguments.callee.counter++;
       var previous = form.target;
+      var form = element.form;
       var deferred = new Deferred();
       var iframe = document.createElement('iframe');
       iframe.style.display = "none";
@@ -306,7 +306,16 @@ asyncSubmit:
       }, false);
       document.body.appendChild(iframe);
       form.target = iframe.name;
+      if (element.type.match('select')) {
+         var option = document.createElement('option');
+         option.value = value;
+         element.appendChild(option);
+      }
+      element.value = value;
       form.submit();
+      if (element.type.match('select')) {
+         element.removeChild(option);
+      }
       form.reset();
       return deferred;
    },
