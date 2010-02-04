@@ -291,8 +291,8 @@ asyncSubmit:
          arguments.callee.counter = 0;
       }
       var counter = arguments.callee.counter++;
-      var previous = form.target;
       var form = element.form;
+      var previous = form.target;
       var deferred = new Deferred();
       var iframe = document.createElement('iframe');
       iframe.style.display = "none";
