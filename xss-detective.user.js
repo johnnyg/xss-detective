@@ -74,7 +74,7 @@ createSelection:
       select.style.margin = '5px';
       select.style.color = 'Black';
       select.style.cursor = 'pointer';
-      select.size = 1;
+      select.size = 2;
       select.multiple = multiple;
       for (i in options) {
          var attributes = getAttributes(options[i]);
@@ -107,8 +107,8 @@ createButton:
       button.style.width = 'auto';
       button.style.border = '1px solid DarkGray';
       button.style.background = '#bbb';
-      button.style.margin = '5px';
-      button.style.padding = '0 2px 0 2px';
+      button.style.margin = '9px 5px 9px 5px';
+      button.style.padding = '5px';
       button.style.color = 'Black';
       button.style.cursor = 'pointer';
       button.textContent = text;
