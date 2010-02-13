@@ -209,6 +209,10 @@ chooseTarget:
          for (var j = 0; j < inputsLength; j++) {
             input = document.forms[i].elements[j];
             if (input.type !== 'submit') {
+               if (input.type === 'hidden') {
+                  input.type = 'text';
+               }
+               input.disabled = false;
                input.style.position = "relative";
                input.style.zIndex = 20;
                input.style.cursor =  "crosshair";
