@@ -155,6 +155,18 @@ init:
 
       this.injectButton = this.createButton('Inject XSS test vector', this.injectXSS.bind(this));
 
+      this.log = document.createElement('textarea');
+      this.log.style.cssFloat = 'left';
+      this.log.style.width = 'auto';
+      this.log.style.border = '1px solid DarkGray';
+      this.log.style.background = '#bbb';
+      this.log.style.margin = '5px';
+      this.log.style.color = 'Black';
+      this.log.readOnly = true;
+      this.log.hide = this.toolbar.hide;
+      this.log.show = this.toolbar.show;
+      this.toolbar.appendChild(this.log);
+
       this.dimmer = document.createElement('div');
       this.dimmer.show = this.toolbar.show;
       this.dimmer.hide = this.toolbar.hide;
@@ -178,6 +190,7 @@ init:
       this.testSelection.hide();
       this.injectButton.hide();
       this.detailSelection.hide();
+      this.log.hide();
 
       this.updateDetails();
 
@@ -201,6 +214,7 @@ chooseTarget:
          this.testSelection.hide();
          this.injectButton.hide();
          this.detailSelection.hide();
+         this.log.hide();
       }
       var formsLength = document.forms.length;
       for (var i = 0; i < formsLength; i++) {
@@ -271,15 +285,15 @@ injectXSS:
          var selected = this.getSelectedTests();
          if (selected.length > 0) {
             this.passed = {};
+            this.log.value = "";
+            this.log.show();
             for (var i in selected) {
                var testIndex = selected[i];
                var deferred = this.asyncSubmit(this.target, this.tests[testIndex].vector);
                deferred.addCallback(this.tests[testIndex].check);
                deferred.addCallback(this.storeResult, this, testIndex);
+               deferred.addCallback(this.logResult, this, testIndex);
                deferred.addCallback(this.updateResults, this, selected.length);
-               if (DEBUG) {
-                  deferred.addCallback(alert);
-               }
             }
          } else {
             alert("You need to select at least one test!");
@@ -353,6 +367,13 @@ storeResult:
       this.passed[testIndex] = passed;
    },
 
+logResult:
+   function(index) {
+      this.log.value += "Test "+index+": ";
+      this.log.value += this.passed[index] ? "Passed" : "Failed";
+      this.log.value += '\n';
+   },
+
 updateResults:
    function(total) {
       var passed = 0;
@@ -369,7 +390,6 @@ updateResults:
       } else if (passed + failed === total) {
          this.target.style.outline = "solid ForestGreen";
       }
-      return passed+" / "+(passed+failed);
    },
 
 updateTests:
