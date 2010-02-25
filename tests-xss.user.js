@@ -25,6 +25,12 @@ var xssTestVectors = [
       description: "If you don't have much space, this string is a nice compact XSS injection check. View source after injecting it and look for <XSS versus &lt;XSS to see if it is vulnerable.",
       check : function (dom) { return dom.body.innerHTML.indexOf('<XSS') == -1; }
    },
+   {
+      vector : "<BODY ONLOAD=document.body.appendChild(document.createElement('div').setAttribute('id', 'XD_body_test'))>",
+      name : "BODY ONLOAD",
+      description : "BODY tag (I like this method because it doesn't require using any variants of \"javascript:\" or \"<SCRIPT...\" to accomplish the XSS attack)",
+      check : function (dom) { return dom.getElementById('XD_body_test') === null; }
+   },
 ];
 
 if (typeof(unsafeWindow) !== 'undefined') {
