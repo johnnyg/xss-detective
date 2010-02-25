@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name XSS Detective
 // @author John Garland
-// @version 0.8
+// @version 1.0
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests a selected input field against known attack vectors.
-// @include http://*/~johnnyg/cs9447/*
-// @include http://www.gaylord.com/*
 // ==/UserScript==
 
-DEBUG = true;
+// Options
+var showOnLoad = false;
+var toggleKey = '/';
 
 function Deferred() {
    this.callbacks = [];
@@ -157,6 +157,7 @@ init:
 
       this.log = document.createElement('textarea');
       this.log.style.cssFloat = 'left';
+      this.log.style.height = '35px';
       this.log.style.width = 'auto';
       this.log.style.border = '1px solid DarkGray';
       this.log.style.background = '#bbb';
@@ -467,5 +468,5 @@ if (typeof(xssTestVectors) === 'undefined') {
 for (vector in xssTestVectors) {
    detective.addVector(xssTestVectors[vector]);
 }
-detective.init(DEBUG);
-detective.setShortcutKey('/');
+detective.init(showOnLoad);
+detective.setShortcutKey(toggleKey);
