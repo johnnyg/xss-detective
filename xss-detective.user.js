@@ -135,6 +135,8 @@ init:
       };
       this.cancel = this.cancelTarget.bind(this);
 
+      this.tests = [];
+
       this.toolbar = this.buildToolbar();
 
       //this.addVector("Random String", this.randomString());
@@ -200,12 +202,16 @@ init:
       this.toggle();
    },
 
-addVector:
-   function(test) {
-      if (typeof(this.tests) === 'undefined') {
-         this.tests = [];
+addVectors:
+   function(vectors) {
+      this.tests.push.apply(this.tests, vectors);
+      for (var i in vectors) {
+         var option = document.createElement('option');
+         option.text = vectors[i].name;
+         option.value = vectors[i].vector;
+         this.testSelection.appendChild(option);
       }
-      this.tests.push(test)
+      this.updateDetails();
    },
 
 chooseTarget:
@@ -455,19 +461,5 @@ toggle:
    },
 };
 
-// Are we being run by greasemonkey?
-if (typeof(unsafeWindow) !== 'undefined') {
-   var xssTestVectors = unsafeWindow.xssTestVectors;
-}
-
-// If we can't see the external tests,
-// let's just create an empty set rather than dying
-if (typeof(xssTestVectors) === 'undefined') {
-   var xssTestVectors = [];
-}
-
-for (vector in xssTestVectors) {
-   detective.addVector(xssTestVectors[vector]);
-}
 detective.init(showOnLoad);
 detective.setShortcutKey(toggleKey);

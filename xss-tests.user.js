@@ -35,5 +35,6 @@ var xssTestVectors = [
 ];
 
 if (typeof(unsafeWindow) !== 'undefined') {
-    unsafeWindow.xssTestVectors = xssTestVectors;
+    var detective  = unsafeWindow.detective;
 }
+detective.addVectors(xssTestVectors);
