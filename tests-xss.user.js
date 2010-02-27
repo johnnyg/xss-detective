@@ -4,6 +4,7 @@
 // @version 0.2
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests for XSS Detective.
+// @include http://servy/~johnnyg/cs9447/*
 // ==/UserScript==
 
 var xssTestVectors = [

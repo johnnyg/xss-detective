@@ -4,6 +4,7 @@
 // @version 1.0
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests a selected input field against known attack vectors.
+// @include http://servy/~johnnyg/cs9447/*
 // ==/UserScript==
 
 // Options
