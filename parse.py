@@ -15,5 +15,5 @@ for attack in tree.findall("attack"):
     attacks.append(obj)
 
 out = open("xssAttacks.json", "w")
-json.dump(attacks, out, indent=3)
+json.dump(attacks, out, sort_keys=True, indent=3)
 out.close()
