@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name XSS Detective Test Vectors
 // @author John Garland
-// @version 0.2
+// @version 0.3
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests for XSS Detective.
 // @include http://servy/~johnnyg/cs9447/*
