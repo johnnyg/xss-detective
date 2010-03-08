@@ -253,7 +253,7 @@ var xssDetective = function() {
       cancelTarget:
       function(e) {
          var ESC = 27;
-         if (e.which === ESC) {
+         if (e.keyCode === ESC) {
             this.targetSelected({ currentTarget : null });
          }
       },
