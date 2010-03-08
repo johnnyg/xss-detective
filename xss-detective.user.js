@@ -60,8 +60,8 @@ var xssDetective = function() {
          toolbar.style.overflow = 'hidden';
          toolbar.style.fontFamily = 'Tahoma, Sans'
          toolbar.style.fontSize = '0.8em';
-         toolbar.hide = function() { this.style.display = 'none !important' };
-         toolbar.show = function() { this.style.display = 'inline !important' };
+         toolbar.hide = function() { this.style.display = 'none' };
+         toolbar.show = function() { this.style.display = 'inline' };
          document.body.appendChild(toolbar);
          return toolbar;
       },
@@ -322,7 +322,7 @@ var xssDetective = function() {
          var previous = form.target;
          var deferred = new Deferred();
          var iframe = document.createElement('iframe');
-         iframe.style.display = "none !important";
+         iframe.style.display = "none";
          iframe.name = "XD_AJAX_LOL_"+counter;
          iframe.addEventListener('load', function (e) {
             if (this.contentDocument.body.firstChild !== null) {
@@ -466,3 +466,7 @@ var xssDetective = function() {
    detective.setShortcutKey(toggleKey);
    return { "addVectors" : detective.addVectors.bind(detective) };
 }();
+
+if (typeof(unsafeWindow) !== 'undefined') {
+   unsafeWindow.xssDetective = xssDetective;
+}
