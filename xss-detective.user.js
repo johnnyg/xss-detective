@@ -45,6 +45,35 @@ var xssDetective = function() {
       }
    }
 
+   function randomString(length) {
+      var rand = [];
+      var min = ' '.charCodeAt(0);
+      var max = '~'.charCodeAt(0);
+      while (rand.length < length) {
+         rand.push(String.fromCharCode(Math.floor(Math.random()*(max-min+1))+min));
+      }
+      return rand.join('');
+   }
+
+   function range() {
+      var start = 0;
+      var stop = 0;
+      var step = 1;
+      switch (arguments.length) {
+         case 3:
+            step = arguments[2];
+         case 2:
+            start = arguments[0];
+         case 1:
+            stop = arguments[1 % arguments.length];
+      }
+      var sequence = [];
+      for (; start < stop; start += step) {
+         sequence.push(start);
+      }
+      return sequence;
+   }
+
    var detective = {
 
       buildToolbar:
@@ -140,7 +169,7 @@ var xssDetective = function() {
 
          this.toolbar = this.buildToolbar();
 
-         //this.addVector("Random String", this.randomString());
+         //this.addVector("Random String", randomString());
 
          this.createButton('Select input', this.chooseTarget.bind(this));
 
@@ -360,16 +389,6 @@ var xssDetective = function() {
          return selectedTests;
       },
 
-      randomString:
-      function(length) {
-         var rand = [];
-         var min = ' '.charCodeAt(0);
-         var max = '~'.charCodeAt(0);
-         while (rand.length < length) {
-            rand.push(String.fromCharCode(Math.floor(Math.random()*(max-min+1))+min));
-         }
-         return rand.join('');
-      },
 
       storeResult:
       function(passed, testIndex) {
