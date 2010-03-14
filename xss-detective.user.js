@@ -154,6 +154,26 @@ var xssDetective = function() {
          return button;
       },
 
+      createCheckbox:
+      function(title, handler) {
+         var checkbox = document.createElement('input');
+         checkbox.style.cssFloat = 'left';
+         checkbox.style.width = 'auto';
+         checkbox.style.background = '#bbb';
+         checkbox.style.margin = '13px 5px 13px 5px';
+         checkbox.style.padding = '5px';
+         checkbox.style.color = 'Black';
+         checkbox.type = 'checkbox';
+         checkbox.title = title;
+         if (handler) {
+            checkbox.addEventListener('click', handler, false);
+         }
+         checkbox.hide = this.toolbar.hide;
+         checkbox.show = this.toolbar.show;
+         this.toolbar.appendChild(checkbox);
+         return checkbox;
+      },
+
       init:
       function(visible) {
 
@@ -176,6 +196,10 @@ var xssDetective = function() {
          this.testSelection = this.createSelection(true, this.tests, function(test) {
                return {"text" : test.name, "value" : test.vector};
          });
+
+         this.testAllCheckbox = this.createCheckbox('Select All Tests', function (e) {
+               this.testSelection.disabled = e.currentTarget.checked;
+         }.bind(this));
 
          this.detailSelection = this.createSelection(false, ["Description", "Vector"], function(option) {
                return {
@@ -218,10 +242,12 @@ var xssDetective = function() {
 
          // Only add events after fields exist
          this.testSelection.addEventListener('change', this.updateTests.bind(this), false);
+         this.testAllCheckbox.addEventListener('change', this.updateTests.bind(this), false);
          this.detailSelection.addEventListener('change', this.updateDetails.bind(this), false);
 
          // Hide these until a target is selected
          this.testSelection.hide();
+         this.testAllCheckbox.hide();
          this.injectButton.hide();
          this.detailSelection.hide();
          this.log.hide();
@@ -250,6 +276,7 @@ var xssDetective = function() {
             this.hover(false, this.target);
             this.target = null;
             this.testSelection.hide();
+            this.testAllCheckbox.hide();
             this.injectButton.hide();
             this.detailSelection.hide();
             this.log.hide();
@@ -309,6 +336,7 @@ var xssDetective = function() {
          if (this.target !== null) {
             this.hover(true, this.target);
             this.testSelection.show();
+            this.testAllCheckbox.show();
             this.detailSelection.show();
             this.updateTests();
          }
@@ -378,12 +406,16 @@ var xssDetective = function() {
 
       getSelectedTests:
       function() {
-         var selectedTests = [];
-         var selectedIndex = this.testSelection.selectedIndex;
          var length = this.testSelection.length;
-         for (var i = selectedIndex; this.testSelection.multiple && i >= 0 && i < length; i++) {
-            if (this.testSelection[i].selected) {
-               selectedTests.push(i);
+         if (this.testAllCheckbox.checked) {
+            var selectedTests = range(length);
+         } else {
+            var selectedTests = [];
+            var selectedIndex = this.testSelection.selectedIndex;
+            for (var i = selectedIndex; this.testSelection.multiple && i >= 0 && i < length; i++) {
+               if (this.testSelection[i].selected) {
+                  selectedTests.push(i);
+               }
             }
          }
          return selectedTests;
