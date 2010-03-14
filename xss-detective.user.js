@@ -107,7 +107,7 @@ var xssDetective = function() {
          select.style.cursor = 'pointer';
          select.size = 2;
          select.multiple = multiple;
-         for (i in options) {
+         for (var i = 0, len = options.length; i < len; i++) {
             var attributes = getAttributes(options[i]);
             var option = document.createElement('option');
             for (attribute in attributes) {
@@ -177,7 +177,7 @@ var xssDetective = function() {
       init:
       function(visible) {
 
-         this.target = null;
+         this.targets = [];
          this.targetEvents = {
             'mouseover' : this.hoverOn.bind(this),
             'mouseout' : this.hoverOff.bind(this),
@@ -192,6 +192,8 @@ var xssDetective = function() {
          //this.addVector("Random String", randomString());
 
          this.createButton('Select input', this.chooseTarget.bind(this));
+
+         this.createButton('Select all inputs', this.allTargetsSelected.bind(this));
 
          this.testSelection = this.createSelection(true, this.tests, function(test) {
                return {"text" : test.name, "value" : test.vector};
@@ -261,7 +263,7 @@ var xssDetective = function() {
       addVectors:
       function(vectors) {
          this.tests.push.apply(this.tests, vectors);
-         for (var i in vectors) {
+         for (var i = 0, len = vectors.length; i < len; i++) {
             var option = document.createElement('option');
             option.text = vectors[i].name;
             option.value = vectors[i].vector;
@@ -272,9 +274,11 @@ var xssDetective = function() {
 
       chooseTarget:
       function(e) {
-         if (this.target !== null) {
-            this.hover(false, this.target);
-            this.target = null;
+         if (this.targets.length > 0) {
+            for (var i = 0, len = this.targets.length; i < len; i++) {
+               this.hover(false, this.targets[i]);
+            }
+            this.targets = [];
             this.testSelection.hide();
             this.testAllCheckbox.hide();
             this.injectButton.hide();
@@ -310,13 +314,15 @@ var xssDetective = function() {
       function(e) {
          var ESC = 27;
          if (e.keyCode === ESC) {
-            this.targetSelected({ currentTarget : null });
+            this.targetSelected(null);
          }
       },
 
       targetSelected:
       function(e) {
-         this.target = e.currentTarget;
+         if (e) {
+            this.targets.push(e.currentTarget);
+         }
          var formsLength = document.forms.length;
          for (var i = 0; i < formsLength; i++) {
             form = document.forms[i];
@@ -333,8 +339,10 @@ var xssDetective = function() {
                }
             }
          }
-         if (this.target !== null) {
-            this.hover(true, this.target);
+         if (this.targets.length > 0) {
+            for (var i = 0, len = this.targets.length; i < len; i++) {
+               this.hover(true, this.targets[i]);
+            }
             this.testSelection.show();
             this.testAllCheckbox.show();
             this.detailSelection.show();
@@ -345,21 +353,47 @@ var xssDetective = function() {
          document.removeEventListener('keypress', this.cancel, false);
       },
 
+      allTargetsSelected:
+      function(e) {
+         var formsLength = document.forms.length;
+         for (var i = 0; i < formsLength; i++) {
+            form = document.forms[i];
+            inputsLength = document.forms[i].elements.length;
+            for (var j = 0; j < inputsLength; j++) {
+               input = document.forms[i].elements[j];
+               if (input.type !== 'submit') {
+                  this.targets.push(input);
+                  this.hover(true, input);
+               }
+            }
+         }
+         if (this.targets.length > 0) {
+            this.testSelection.show();
+            this.testAllCheckbox.show();
+            this.detailSelection.show();
+            this.updateTests();
+         } else {
+            alert("No inputs found!");
+         }
+      },
+
       injectXSS:
       function(e) {
-         if (this.target !== null) {
+         if (this.targets.length > 0) {
             var selected = this.getSelectedTests();
             if (selected.length > 0) {
                this.passed = {};
                this.log.value = "";
                this.log.show();
-               for (var i in selected) {
+               for (var i = 0, len = selected.length; i < len; i++) {
                   var testIndex = selected[i];
-                  var deferred = this.asyncSubmit(this.target, this.tests[testIndex].vector);
-                  deferred.addCallback(this.tests[testIndex].check);
-                  deferred.addCallback(this.storeResult, this, testIndex);
-                  deferred.addCallback(this.logResult, this, testIndex);
-                  deferred.addCallback(this.updateResults, this, selected.length);
+                  for (var j = 0, len2 = this.targets.length; j < len2; j++) {
+                     var deferred = this.asyncSubmit(this.targets[j], this.tests[testIndex].vector);
+                     deferred.addCallback(this.tests[testIndex].check);
+                     deferred.addCallback(this.storeResult, this, testIndex);
+                     deferred.addCallback(this.logResult, this, testIndex);
+                     deferred.addCallback(this.updateResults, this, selected.length);
+                  }
                }
             } else {
                alert("You need to select at least one test!");
@@ -446,9 +480,13 @@ var xssDetective = function() {
             }
          }
          if (failed > 0) {
-            this.target.style.outline = "solid Red";
+            for (var i = 0, len = this.targets.length; i < len; i++) {
+               this.targets[i].style.outline = "solid Red";
+            }
          } else if (passed + failed === total) {
-            this.target.style.outline = "solid ForestGreen";
+            for (var i = 0, len = this.targets.length; i < len; i++) {
+               this.targets[i].style.outline = "solid ForestGreen";
+            }
          }
       },
 
@@ -465,7 +503,7 @@ var xssDetective = function() {
       updateDetails:
       function(e) {
          var type = this.detailSelection.options[this.detailSelection.selectedIndex].value;
-         for (var i in this.tests) {
+         for (var i = 0, len = this.tests.length; i < len; i++) {
             if (type === "Description") {
                this.testSelection[i].title = this.tests[i].description;
             } else {
