@@ -1,19 +1,25 @@
 #!/usr/bin/env python
-# Parses xssAttacks.xml and produces a json file
+# Parses an xml file and produces a json file
 
 import lxml.etree
 import json
+import os.path
+import sys
 
-props = { "name" : "name", "description" : "desc", "vector" : "code" }
-attacks = []
-tree = lxml.etree.parse("xssAttacks.xml")
+filenames = [arg for arg in sys.argv[1:] if arg.endswith(".xml")]
 
-for attack in tree.findall("attack"):
-    obj = {}
-    for prop, child in props.iteritems():
-        obj[prop] = attack.findtext(child)
-    attacks.append(obj)
+for filename in filenames:
+    props = { "name" : "name", "description" : "desc", "vector" : "code" }
+    attacks = []
+    tree = lxml.etree.parse(filename)
 
-out = open("xssAttacks.json", "w")
-json.dump(attacks, out, sort_keys=True, indent=3)
-out.close()
+    for attack in tree.findall("attack"):
+        obj = {}
+        for prop, child in props.iteritems():
+            obj[prop] = attack.findtext(child)
+        attacks.append(obj)
+
+    out = open(os.path.splitext(filename)[0] + ".json", 'w')
+    json.dump(attacks, out, sort_keys=True, indent=3, separators=(',', " : "))
+    out.write('\n')
+    out.close()
