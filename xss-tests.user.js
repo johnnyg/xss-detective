@@ -4,7 +4,6 @@
 // @version 0.3
 // @namespace http://userscripts.org/scripts/show/52430
 // @description Tests for XSS Detective.
-// @include http://servy/~johnnyg/cs9447/*
 // ==/UserScript==
 //
 // This program is free software: you can redistribute it and/or modify
