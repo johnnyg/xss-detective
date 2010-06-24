@@ -1,0 +1,3 @@
+#!/bin/bash
+OPERA_USERJS_DIR="`grep 'User JavaScript File' ~/.opera/operaprefs.ini | cut -d'=' -f2-`"
+rsync -aP *.js "$OPERA_USERJS_DIR"
