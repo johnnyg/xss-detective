@@ -347,6 +347,7 @@ var xssDetective = function() {
             inputsLength = document.forms[i].elements.length;
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
+               input.uniqueID = i + ';' + j;
                if (input.type !== 'submit') {
                   input.style.zIndex = "";
                   input.style.position = "static";
@@ -379,6 +380,7 @@ var xssDetective = function() {
             inputsLength = document.forms[i].elements.length;
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
+               input.uniqueID = i + ';' + j;
                if (input.type !== 'submit') {
                   if (input.type === 'hidden') {
                      input.type = 'text';
@@ -411,7 +413,7 @@ var xssDetective = function() {
                   for (var j = 0, len2 = this.targets.length; j < len2; j++) {
                      var deferred = this.asyncSubmit(this.targets[j], this.tests[testIndex].vector);
                      deferred.addCallback(this.tests[testIndex].check);
-                     deferred.addCallback(this.storeResult, this, testIndex);
+                     deferred.addCallback(this.storeResult, this, this.targets[j], testIndex);
                      deferred.addCallback(this.logResult, this, this.targets[j], testIndex);
                      deferred.addCallback(this.updateResults, this, selected.length);
                   }
@@ -478,35 +480,39 @@ var xssDetective = function() {
 
 
       storeResult:
-      function(passed, testIndex) {
-         this.passed[testIndex] = passed;
+      function(passed, input, testIndex) {
+         if (typeof(this.passed[input.uniqueID]) === 'undefined') {
+            this.passed[input.uniqueID] = {};
+         }
+         this.passed[input.uniqueID][testIndex] = passed;
       },
 
       logResult:
       function(input, index) {
          this.log.value += input.name + " ";
-         this.log.value += this.passed[index] ? "PASSED" : "FAILED";
+         this.log.value += this.passed[input.uniqueID][index] ? "PASSED" : "FAILED";
          this.log.value += " test " + index + '\n';
       },
 
       updateResults:
       function(total) {
-         var passed = 0;
-         var failed = 0;
-         for (var i in this.passed) {
-            if (this.passed[i]) {
-               passed++;
-            } else {
-               failed++;
-            }
-         }
-         if (failed > 0) {
-            for (var i = 0, len = this.targets.length; i < len; i++) {
-               this.targets[i].style.outline = "solid Red";
-            }
-         } else if (passed + failed === total) {
-            for (var i = 0, len = this.targets.length; i < len; i++) {
-               this.targets[i].style.outline = "solid ForestGreen";
+         for (var i = 0, len = this.targets.length; i < len; i++) {
+            var target = this.targets[i].uniqueID;
+            var passed = 0;
+            var failed = 0;
+            if (typeof(this.passed[target]) !== 'undefined') {
+               for (var test in this.passed[target]) {
+                  if (this.passed[target][test]) {
+                     passed++;
+                  } else {
+                     failed++;
+                  }
+               }
+               if (failed > 0) {
+                  this.targets[i].style.outline = "solid Red";
+               } else if (passed === total) {
+                  this.targets[i].style.outline = "solid ForestGreen";
+               }
             }
          }
       },
