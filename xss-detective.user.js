@@ -380,6 +380,9 @@ var xssDetective = function() {
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
                if (input.type !== 'submit') {
+                  if (input.type === 'hidden') {
+                     input.type = 'text';
+                  }
                   this.targets.push(input);
                   this.hover(true, input);
                }
