@@ -409,7 +409,7 @@ var xssDetective = function() {
                      var deferred = this.asyncSubmit(this.targets[j], this.tests[testIndex].vector);
                      deferred.addCallback(this.tests[testIndex].check);
                      deferred.addCallback(this.storeResult, this, testIndex);
-                     deferred.addCallback(this.logResult, this, testIndex);
+                     deferred.addCallback(this.logResult, this, this.targets[j], testIndex);
                      deferred.addCallback(this.updateResults, this, selected.length);
                   }
                }
@@ -480,10 +480,10 @@ var xssDetective = function() {
       },
 
       logResult:
-      function(index) {
-         this.log.value += "Test "+index+": ";
-         this.log.value += this.passed[index] ? "Passed" : "Failed";
-         this.log.value += '\n';
+      function(input, index) {
+         this.log.value += input.name + " ";
+         this.log.value += this.passed[index] ? "PASSED" : "FAILED";
+         this.log.value += " test " + index + '\n';
       },
 
       updateResults:
