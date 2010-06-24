@@ -284,6 +284,13 @@ var xssDetective = function() {
          this.updateDetails();
       },
 
+      isValidTarget:
+      function(target) {
+         return (target.type !== 'submit' &&
+                 target.type !== 'reset' &&
+                 target.type !== 'button');
+      },
+
       chooseTarget:
       function(e) {
          if (this.targets.length > 0) {
@@ -303,7 +310,7 @@ var xssDetective = function() {
             inputsLength = document.forms[i].elements.length;
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
-               if (input.type !== 'submit') {
+               if (this.isValidTarget(input)) {
                   if (input.type === 'hidden') {
                      input.type = 'text';
                   }
@@ -348,7 +355,7 @@ var xssDetective = function() {
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
                input.uniqueID = i + ';' + j;
-               if (input.type !== 'submit') {
+               if (this.isValidTarget(input)) {
                   input.style.zIndex = "";
                   input.style.position = "static";
                   input.style.cursor = "auto";
@@ -381,7 +388,7 @@ var xssDetective = function() {
             for (var j = 0; j < inputsLength; j++) {
                input = document.forms[i].elements[j];
                input.uniqueID = i + ';' + j;
-               if (input.type !== 'submit') {
+               if (this.isValidTarget(input)) {
                   if (input.type === 'hidden') {
                      input.type = 'text';
                   }
