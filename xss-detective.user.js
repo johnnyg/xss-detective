@@ -307,8 +307,14 @@ var xssDetective = function() {
                   if (input.type === 'hidden') {
                      input.type = 'text';
                   }
+                  if (input.style.position !== "absolute" ||
+                      input.style.position !== "relative" ||
+                      input.style.position !== "fixed") {
+                     input.style.left = "0px";
+                     input.style.top = "0px";
+                     input.style.position = "relative";
+                  }
                   input.disabled = false;
-                  input.style.position = "relative";
                   input.style.zIndex = 20;
                   input.style.cursor =  "crosshair";
                   for (var e in this.targetEvents) {
